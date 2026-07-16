@@ -3,6 +3,6 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   plugins: [react()],
-  // تأكد أن المسار يبدأ وينتهي بـ "/" ويتضمن اسم المستودع الخاص بك
-  base: './sudapost-app/', 
+  // هذا هو السطر المسؤول عن إصلاح خطأ 404 للملفات
+  base: '/sudapost-app/', 
 })
