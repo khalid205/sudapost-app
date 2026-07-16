@@ -1,5 +1,5 @@
 import React from 'react';
-import { Routes, Route } from 'react-router-dom'; // تم إزالة Router من هنا
+import { Routes, Route } from 'react-router-dom'; // تأكد أنه لا يوجد هنا 'Router' أو 'HashRouter'
 import Navbar from './Navbar';
 import First from './First';
 import Services from './Services';
@@ -13,9 +13,7 @@ import Footer from './Footer';
 function App(): React.JSX.Element {
   return (
     <>
-      {/* الـ Navbar سيبقى ظاهراً في جميع الصفحات */}
       <Navbar />
-      
       <div className="content">
         <Routes>
           <Route path="/" element={<First />} />
@@ -27,10 +25,8 @@ function App(): React.JSX.Element {
           <Route path="*" element={<Error404 />} />
         </Routes>
       </div>
-      
       <Footer />
     </>
   );
 }
-
 export default App;

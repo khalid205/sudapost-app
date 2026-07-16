@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { HashRouter } from 'react-router-dom'; // الـ Router مكانه هنا فقط
+import { HashRouter } from 'react-router-dom'; // الـ Router الوحيد هنا
 import App from './App';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
