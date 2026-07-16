@@ -1,5 +1,5 @@
 import React from 'react';
-import { HashRouter as Router, Routes, Route } from 'react-router-dom'; // التغيير هنا
+import { Routes, Route } from 'react-router-dom'; // تم إزالة Router من هنا
 import Navbar from './Navbar';
 import First from './First';
 import Services from './Services';
@@ -12,7 +12,8 @@ import Footer from './Footer';
 
 function App(): React.JSX.Element {
   return (
-    <Router> {/* الآن سيتم التعامل مع المسارات باستخدام الهاش # */}
+    <>
+      {/* الـ Navbar سيبقى ظاهراً في جميع الصفحات */}
       <Navbar />
       
       <div className="content">
@@ -28,7 +29,7 @@ function App(): React.JSX.Element {
       </div>
       
       <Footer />
-    </Router>
+    </>
   );
 }
 

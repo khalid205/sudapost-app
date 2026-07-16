@@ -1,12 +1,12 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { HashRouter } from 'react-router-dom'; // تغيير الاستيراد هنا
+import { HashRouter } from 'react-router-dom'; // الـ Router مكانه هنا فقط
 import App from './App';
-import 'bootstrap/dist/css/bootstrap.min.css'; // تأكد من وجود ملف الـ CSS
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <HashRouter> {/* تغيير المكون هنا */}
+    <HashRouter>
       <App />
     </HashRouter>
   </React.StrictMode>
