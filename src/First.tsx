@@ -6,9 +6,8 @@ import Container from 'react-bootstrap/Container';
 import Col from 'react-bootstrap/Col';
 import Nav from 'react-bootstrap/Nav';
 import Row from 'react-bootstrap/Row';
-import {Button } from "react-bootstrap";
 import { Apple, GooglePlay, BoxSeam, ChevronRight, ChevronLeft, ArrowLeft } from 'react-bootstrap-icons'; // استدعاء أيقونات الشحن والمتاجر القياسية
-
+import { Link } from 'react-router-dom'; // استيراد Link
 // استيراد الصور
 import picmap from './Untitled-1.jpg';
 import './First.css';
@@ -238,19 +237,19 @@ export const MostUsedServices: React.FC = () => {
                       <h4 className="fw-bold mb-3" style={{ color: '#102a43' }}> إصدار رخصة قيادة </h4>
                       <p className="text-muted" style={{ lineHeight: '1.6' }}>تتيح هذه الخدمة للمستفيدين حجز مواعيد التدريب في مدارس تعليم القيادة، ما يمكّنهم من استكمال متطلبات التدريب اللازم للحصول على رخصة القيادة، ثم إصدارها بعد إتمام كامل المتطلبات.</p>
                       {/* زر أخضر متناسق مع هوية أبشر */}
-                      <Button href="/HowPost" className="btn mt-4 px-4 py-2 fw-semibold shadow-sm" style={{ backgroundColor: "#006650", color: "#ffffff" }} >بدء الخدمة <ArrowLeft /></Button>
+                      <Nav.Link as={Link} to="/HowPost" className="btn mt-4 px-4 py-2 fw-semibold shadow-sm" style={{ backgroundColor: "#006650", color: "#ffffff" }} >بدء الخدمة <ArrowLeft /></Nav.Link>
                     </Tab.Pane>
                     
                     <Tab.Pane eventKey="second">
                       <h4 className="fw-bold mb-3" style={{ color: '#102a43' }}>مواعيد الأحوال المدنية</h4>
                       <p className="text-muted" style={{ lineHeight: '1.6' }}>تتيح هذه الخدمة للمستفيد حجز موعد جديد أو تعديل موعد سابق لمراجعة مكاتب الأحوال المدنية، مع عرض متطلبات تنفيذ الخدمة المطلوبة قبل الزيارة.</p>
-                      <Button href="/HowPost" className="btn mt-4 px-4 py-2 fw-semibold shadow-sm" style={{ backgroundColor: "#006650", color: "#ffffff" }} >بدء الخدمة <ArrowLeft /></Button>
+                        <Nav.Link as={Link} to="/HowPost" className="btn mt-4 px-4 py-2 fw-semibold shadow-sm" style={{ backgroundColor: "#006650", color: "#ffffff" }} >بدء الخدمة <ArrowLeft /></Nav.Link>
                     </Tab.Pane>
                     
                     <Tab.Pane eventKey="third">
                       <h4 className="fw-bold mb-3" style={{ color: '#102a43' }}>مواعيد المديرية العامة للجوازات</h4>
                       <p className="text-muted" style={{ lineHeight: '1.6' }}>تتيح هذه الخدمة للأفراد المسجلين على منصة سودابوست حجز المواعيد لدى مكاتب المديرية العامة للجوازات.</p>
-                      <Button href="/HowPost" className="btn mt-4 px-4 py-2 fw-semibold shadow-sm" style={{ backgroundColor: "#006650", color: "#ffffff" }} >بدء الخدمة <ArrowLeft /></Button>
+                        <Nav.Link as={Link} to="/HowPost" className="btn mt-4 px-4 py-2 fw-semibold shadow-sm" style={{ backgroundColor: "#006650", color: "#ffffff" }} >بدء الخدمة <ArrowLeft /></Nav.Link>
                     </Tab.Pane>
                   </Tab.Content>
                 </Col>
@@ -272,12 +271,12 @@ export const MostUsedServices: React.FC = () => {
                     <Tab.Pane eventKey="first">
                       <h4 className="fw-bold mb-3" style={{ color: '#102a43' }}> استعراض المراكز المعتمدة لإسقاط المركبات </h4>
                       <p className="text-muted" style={{ lineHeight: '1.6' }}>تتيح هذه الخدمة التعرّف على المراكز المعتمدة لدى منصة سودابوست في مختلف مناطق المملكة؛ لإسقاط جميع أنواع المركبات المهملة والتالفة.</p>
-                      <Button href="/HowPost" className="btn mt-4 px-4 py-2 fw-semibold shadow-sm" style={{ backgroundColor: "#006650", color: "#ffffff" }} >بدء الخدمة <ArrowLeft /></Button>
+                         <Nav.Link as={Link} to="/HowPost" className="btn mt-4 px-4 py-2 fw-semibold shadow-sm" style={{ backgroundColor: "#006650", color: "#ffffff" }} >بدء الخدمة <ArrowLeft /></Nav.Link>
                     </Tab.Pane>
                     <Tab.Pane eventKey="second">
                       <h4 className="fw-bold mb-3" style={{ color: '#102a43' }}>مزاد اللوحات</h4>
                       <p className="text-muted" style={{ lineHeight: '1.6' }}>تتيح هذه الخدمة إمكانية المزايدة على لوحة مركبة من نوع خصوصي، أو نقل خاص أو دراجة نارية.</p>
-                      <Button href="/HowPost" className="btn mt-4 px-4 py-2 fw-semibold shadow-sm" style={{ backgroundColor: "#006650", color: "#ffffff" }} >بدء الخدمة <ArrowLeft /></Button>
+                        <Nav.Link as={Link} to="/HowPost" className="btn mt-4 px-4 py-2 fw-semibold shadow-sm" style={{ backgroundColor: "#006650", color: "#ffffff" }} >بدء الخدمة <ArrowLeft /></Nav.Link>
                     </Tab.Pane>
                   </Tab.Content>
                 </Col>
@@ -299,12 +298,12 @@ export const MostUsedServices: React.FC = () => {
                     <Tab.Pane eventKey="first">
                       <h4 className="fw-bold mb-3" style={{ color: '#102a43' }}> ارتقِ بأسلوب حياتك: أثاث فاخر يصنع فارقاً في منزلك </h4>
                       <p className="text-muted" style={{ lineHeight: '1.6' }}>في متجرنا، نؤمن أن المنزل ليس مجرد مساحة، بل هو انعكاس لشخصيتك وذوقك الرفيع. ننسج الفخامة والراحة في كل قطعة أثاث ومفروشات نقدمها لك؛ حيث تجتمع جودة الخامات الإيطالية مع دقة التصميم العصري لنهديك مساحات دافئة تدوم لأجيال وتلهم ضيوفك من النظرة الأولى</p>
-                      <Button href="/HowPost" className="btn mt-4 px-4 py-2 fw-semibold shadow-sm" style={{ backgroundColor: "#006650", color: "#ffffff" }} >بدء الخدمة <ArrowLeft /></Button>
+                         <Nav.Link as={Link} to="/HowPost" className="btn mt-4 px-4 py-2 fw-semibold shadow-sm" style={{ backgroundColor: "#006650", color: "#ffffff" }} >بدء الخدمة <ArrowLeft /></Nav.Link>
                     </Tab.Pane>
                     <Tab.Pane eventKey="second">
                       <h4 className="fw-bold mb-3" style={{ color: '#102a43' }}>صمّم بيئة عمل تلهم النجاح وتصنع الفارق لشركتك</h4>
                       <p className="text-muted" style={{ lineHeight: '1.6' }}>نحن لا نبيع مجرد مكاتب، بل نبتكر مساحات عمل محفزة للإبداع والإنتاجية. نقدم للشركات والمنشآت حلولاً متكاملة من الأثاث المكتبي الفاخر؛ بدءاً من طاولات الاجتماعات الكبرى ومكاتب الإدارة التنفيذية، ووصولاً إلى وحدات العمل المشتركة الذكية، مصممة بخامات متميزة تعكس قوة هويتك التجارية أمام عملائك وموظفيك</p>
-                      <Button href="/HowPost" className="btn mt-4 px-4 py-2 fw-semibold shadow-sm" style={{ backgroundColor: "#006650", color: "#ffffff" }} >بدء الخدمة <ArrowLeft /></Button>
+                        <Nav.Link as={Link} to="/HowPost" className="btn mt-4 px-4 py-2 fw-semibold shadow-sm" style={{ backgroundColor: "#006650", color: "#ffffff" }} >بدء الخدمة <ArrowLeft /></Nav.Link>
                     </Tab.Pane>
                   </Tab.Content>
                 </Col>
@@ -325,7 +324,7 @@ export const MostUsedServices: React.FC = () => {
                     <Tab.Pane eventKey="first">
                       <h4 className="fw-bold mb-3" style={{ color: '#102a43' }}> سودابوست هو دليلك الشامل للمراكز المعتمدة للشهادات المهنية بالمملكة </h4>
                       <p className="text-muted" style={{ lineHeight: '1.6' }}>استثمر في مستقبلك المهني عبر جهات موثوقة. نستعرض لك الدليل الحصري والمنظم لكافة المراكز والمعاهد المعتمدة من الجهات الرسمية في المملكة العربية السعودية (مثل المؤسسة العامة للتدريب التقني والمهني، وصندوق "هدف") لاستخراج الشهادات الاحترافية والتقنية. نوفر لك عناء البحث لنضع بين يديك بوابتك المباشرة لتطوير مهاراتك بما يتوافق مع معايير سوق العمل السعودي ورؤية المملكة 2030</p>
-                      <Button href="/HowPost" className="btn mt-4 px-4 py-2 fw-semibold shadow-sm" style={{ backgroundColor: "#006650", color: "#ffffff" }} >بدء الخدمة <ArrowLeft /></Button>
+                       <Nav.Link as={Link} to="/HowPost" className="btn mt-4 px-4 py-2 fw-semibold shadow-sm" style={{ backgroundColor: "#006650", color: "#ffffff" }} >بدء الخدمة <ArrowLeft /></Nav.Link>
                     </Tab.Pane>
                   </Tab.Content>
                 </Col>
@@ -348,17 +347,17 @@ export const MostUsedServices: React.FC = () => {
                     <Tab.Pane eventKey="first">
                       <h4 className="fw-bold mb-3" style={{ color: '#102a43' }}> التميز في نقل وشحن المواشي الحية من والي السعودية بأعلى معايير السلامة والرعاية </h4>
                       <p className="text-muted" style={{ lineHeight: '1.6' }}>نحن لا ننقل مجرد شحنات، بل ندير ثروتك الحيوانية بعناية فائقة. نوفر لك حلولاً متكاملة لنقل وشحن المواشي الحية (برياً وبحرياً) عبر أساطيل مجهزة بالكامل ومطابقة للمواصفات القياسية؛ حيث نضمن التهوية المثالية، والتحكم الحراري، والتغذية المستمرة طوال الرحلة تحت إشراف طواقم بيطرية متخصصة، لضمان وصول قطيعك بأمان وصحة كاملة دون إجهاد.</p>
-                      <Button href="/HowPost" className="btn mt-4 px-4 py-2 fw-semibold shadow-sm" style={{ backgroundColor: "#006650", color: "#ffffff" }} >بدء الخدمة <ArrowLeft /></Button>
+                         <Nav.Link as={Link} to="/HowPost" className="btn mt-4 px-4 py-2 fw-semibold shadow-sm" style={{ backgroundColor: "#006650", color: "#ffffff" }} >بدء الخدمة <ArrowLeft /></Nav.Link>
                     </Tab.Pane>
                     <Tab.Pane eventKey="second">
                       <h4 className="fw-bold mb-3" style={{ color: '#102a43' }}>حلول الشحن المبرد والجاف للمواد التموينية بأعلى معايير سلامة الغذاء</h4>
                       <p className="text-muted" style={{ lineHeight: '1.6' }}>ندرك أهمية الحفاظ على جودة وقيمة شحناتك الغذائية حتى تصل إلى المستهلك النهائي. نوفر لك منظومة متكاملة لشحن المواد التموينية والغذائية عبر أساطيل مجهزة بأحدث تقنيات التحكم الحراري والرطوبة (تبريد، تجميد، وجاف)، ملتزمين بأدق المعايير الصحية العالمية لضمان حماية الشحنات من التلف أو التلوث طوال فترة الرحلة</p>
-                      <Button href="/HowPost" className="btn mt-4 px-4 py-2 fw-semibold shadow-sm" style={{ backgroundColor: "#006650", color: "#ffffff" }} >بدء الخدمة <ArrowLeft /></Button>
+                        <Nav.Link as={Link} to="/HowPost" className="btn mt-4 px-4 py-2 fw-semibold shadow-sm" style={{ backgroundColor: "#006650", color: "#ffffff" }} >بدء الخدمة <ArrowLeft /></Nav.Link>
                     </Tab.Pane>
                     <Tab.Pane eventKey="three">
                       <h4 className="fw-bold mb-3" style={{ color: '#102a43' }}>شحن آمن ومضمون للأجهزة الكهربائية والإلكترونيات الحساسة</h4>
                       <p className="text-muted" style={{ lineHeight: '1.6' }}>ندرك أن الأجهزة الكهربائية تتطلب معالجة خاصة وحماية فائقة ضد الصدمات والرطوبة. نوفر لك حلول شحن لوجستية متكاملة للأجهزة المنزلية والتقنية، مدعومة بأنظمة تغليف متطورة ومقاومة للاهتزازات، مع أسطول مجهز يضمن نقل بضائعك الثمينة بأمان تام من المصنع وحتى وصولها لعملائك دون أي أضرار تشغيلية. </p>
-                      <Button href="/HowPost" className="btn mt-4 px-4 py-2 fw-semibold shadow-sm" style={{ backgroundColor: "#006650", color: "#ffffff" }} >بدء الخدمة <ArrowLeft /></Button>
+                        <Nav.Link as={Link} to="/HowPost" className="btn mt-4 px-4 py-2 fw-semibold shadow-sm" style={{ backgroundColor: "#006650", color: "#ffffff" }} >بدء الخدمة <ArrowLeft /></Nav.Link>
                     </Tab.Pane>
                   </Tab.Content>
                 </Col>
