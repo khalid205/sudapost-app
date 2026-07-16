@@ -1,12 +1,4 @@
-/* src/index.css */
 
-/* 1. استيراد الخط من قوقل مباشرة */
-@import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap');
-
-/* 2. تطبيق الخط على المشروع بالكامل مع إجبار المتصفح */
-* {
-  font-family: 'Tajawal', sans-serif !important;
-}
 
 
 ::-webkit-scrollbar{
@@ -21,4 +13,18 @@
 ::-webkit-scrollbar-thumb{
   background-color: #006650;
   border-radius: 10px;
+}
+
+/* استيراد الخط من جوجل */
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;700&display=swap');
+
+/* تطبيق الخط على كامل الموقع */
+body {
+  font-family: 'Cairo', sans-serif !important;
+}
+
+/* اختيارياً: يمكنك جعل الخط يطبق على العناوين فقط أو أجزاء معينة */
+h1, h2, h3, .navbar-brand {
+  font-family: 'Cairo', sans-serif !important;
+  font-weight: 700;
 }
