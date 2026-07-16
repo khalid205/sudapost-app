@@ -1,75 +1,32 @@
-# React + TypeScript + Vite
+# سودابوست (SudaPost) - منصة الشحن والنقل الدولي
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+سودابوست هي منصة إلكترونية متطورة مخصصة لتسهيل خدمات الشحن والنقل البري والجوي بين المملكة العربية السعودية وجمهورية السودان. تهدف المنصة إلى توفير تجربة مستخدم سلسة وشفافة لتتبع الشحنات، حجز خدمات النقل، وإدارة العمليات اللوجستية بكفاءة عالية.
 
-Currently, two official plugins are available:
+## 🚀 نظرة عامة
+تم تصميم "سودابوست" لربط العملاء بخدمات الشحن الموثوقة، مع توفير واجهة مستخدم تفاعلية تدعم المسارات اللوجستية المعقدة (سواء من السعودية إلى السودان أو العكس).
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## 🛠 التقنيات المستخدمة
+يعتمد المشروع على أحدث تقنيات تطوير الويب لضمان الأداء العالي والتجاوب:
 
-## React Compiler
+*   **Frontend:** React.js, TypeScript.
+*   **Styling:** Bootstrap, CSS3 (تصميم متجاوب بالكامل).
+*   **Routing:** React Router DOM (للتنقل الفعال بين الصفحات).
+*   **State Management:** React Hooks (useState, useRef, useEffect).
+*   **Backend & Analytics:** Firebase (Firestore, Firebase Analytics).
+*   **Version Control:** GitHub.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## 🌟 الميزات الرئيسية
+*   **نظام تتبع الشحنات:** واجهة تتيح للمستخدمين معرفة حالة شحناتهم بدقة.
+*   **خدمات النقل الفورية:** إمكانية حجز خدمات الشحن عبر خطوات واضحة ومبسطة.
+*   **تصميم مخصص:** واجهة مستخدم تعتمد على اتجاه اليمين إلى اليسار (RTL) لدعم اللغة العربية بشكل مثالي.
+*   **لوحة تحكم المستخدم:** تتبع العمليات السابقة والحالية بكل سهولة.
+*   **إنجازات الشركة:** عرض إحصائيات العمليات الشهرية والسنوية الموثقة.
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
-```
-
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
-```
+## 📦 هيكل المشروع
+```text
+/src
+  /components     # المكونات القابلة لإعادة الاستخدام (Navbar, Footer, Services)
+  /pages          # صفحات الموقع الرئيسية
+  /assets         # الصور والملفات الثابتة
+  /hooks          # الدوال المخصصة (Custom Hooks)
+  /services       # إعدادات Firebase والاتصال بالـ API
