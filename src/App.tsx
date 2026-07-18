@@ -1,5 +1,5 @@
 import React from 'react';
-import { HashRouter, Routes, Route } from 'react-router-dom'; // قم باستبدال BrowserRouter بـ HashRouter
+import { Routes, Route } from 'react-router-dom'; // قم باستبدال BrowserRouter بـ HashRouter
 import Navbar from './Navbar';
 import First from './First';
 import Services from './Services';
@@ -12,7 +12,7 @@ import Footer from './Footer';
 
 function App(): React.JSX.Element {
   return (
-    <HashRouter> {/* استخدم HashRouter هنا */}
+<>
       <Navbar />
       <div className="content">
         <Routes>
@@ -26,7 +26,7 @@ function App(): React.JSX.Element {
         </Routes>
       </div>
       <Footer />
-    </HashRouter>
+    </>
   );
 }
 export default App;
