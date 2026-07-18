@@ -42,11 +42,11 @@ const CollapsibleExample: React.FC = () => {
         <Navbar.Collapse id="responsive-navbar-nav" style={{ flexGrow: 0 }}>
      <Nav className="gap-4 fs-5 fw-medium align-items-stretch align-items-lg-center pt-3 pt-lg-0" style={{ textAlign: 'right' }}>
     <Nav.Link as={Link} to="/" eventKey="1" className="px-2 py-2 py-lg-0">الرئيسية</Nav.Link>
-    <Nav.Link as={Link} to="Services" eventKey="2" className="px-2 py-2 py-lg-0">الخدمات اللوجستية</Nav.Link>
-    <Nav.Link as={Link} to="HowPost" eventKey="3" className="px-2 py-2 py-lg-0">كيفية الشحن</Nav.Link>
-    <Nav.Link as={Link} to="ServicePost" eventKey="4" className="px-2 py-2 py-lg-0">خدماتنا البريدية</Nav.Link>
-    <Nav.Link as={Link} to="Financial" eventKey="5" className="px-2 py-2 py-lg-0">خدماتنا المالية</Nav.Link>
-    <Nav.Link as={Link} to="Customs" eventKey="6" className="px-2 py-2 py-lg-0">خدمات الجمارك</Nav.Link>
+    <Nav.Link as={Link} to="/Services" eventKey="2" className="px-2 py-2 py-lg-0">الخدمات اللوجستية</Nav.Link>
+    <Nav.Link as={Link} to="/HowPost" eventKey="3" className="px-2 py-2 py-lg-0">كيفية الشحن</Nav.Link>
+    <Nav.Link as={Link} to="/ServicePost" eventKey="4" className="px-2 py-2 py-lg-0">خدماتنا البريدية</Nav.Link>
+    <Nav.Link as={Link} to="/Financial" eventKey="5" className="px-2 py-2 py-lg-0">خدماتنا المالية</Nav.Link>
+    <Nav.Link as={Link} to="/Customs" eventKey="6" className="px-2 py-2 py-lg-0">خدمات الجمارك</Nav.Link>
 </Nav>
         </Navbar.Collapse>
       </Container>

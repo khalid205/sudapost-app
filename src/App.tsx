@@ -1,5 +1,5 @@
 import React from 'react';
-import { Routes, Route } from 'react-router-dom'; // تأكد أنه لا يوجد هنا 'Router' أو 'HashRouter'
+import { HashRouter, Routes, Route } from 'react-router-dom'; // قم باستبدال BrowserRouter بـ HashRouter
 import Navbar from './Navbar';
 import First from './First';
 import Services from './Services';
@@ -12,21 +12,21 @@ import Footer from './Footer';
 
 function App(): React.JSX.Element {
   return (
-    <>
+    <HashRouter> {/* استخدم HashRouter هنا */}
       <Navbar />
       <div className="content">
-      <Routes>
-  <Route path="/" element={<First />} />
-  <Route path="Services" element={<Services />} />
-  <Route path="ServicePost" element={<ServicePost />} />
-  <Route path="HowPost" element={<HowPost />} />
-  <Route path="Financial" element={<Financial />} />
-  <Route path="Customs" element={<Customs />} />
-  <Route path="*" element={<Error404 />} />
-</Routes>
+        <Routes>
+          <Route path="/" element={<First />} />
+          <Route path="/Services" element={<Services />} />
+          <Route path="/ServicePost" element={<ServicePost />} />
+          <Route path="/HowPost" element={<HowPost />} />
+          <Route path="/Financial" element={<Financial />} />
+          <Route path="/Customs" element={<Customs />} />
+          <Route path="*" element={<Error404 />} />
+        </Routes>
       </div>
       <Footer />
-    </>
+    </HashRouter>
   );
 }
 export default App;
