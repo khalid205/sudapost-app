@@ -1,5 +1,6 @@
 import React from 'react';
-import { Routes, Route } from 'react-router-dom'; // قم باستبدال BrowserRouter بـ HashRouter
+import { Routes, Route } from 'react-router-dom'; // استخدمنا HashRouter
+import ScrollToTop from './ScrollToTop';
 import Navbar from './Navbar';
 import First from './First';
 import Services from './Services';
@@ -12,7 +13,8 @@ import Footer from './Footer';
 
 function App(): React.JSX.Element {
   return (
-<>
+  <>
+      <ScrollToTop /> {/* يوضع هنا، داخل الـ Router */}
       <Navbar />
       <div className="content">
         <Routes>
@@ -26,7 +28,8 @@ function App(): React.JSX.Element {
         </Routes>
       </div>
       <Footer />
-    </>
+  </>
   );
 }
+
 export default App;
