@@ -1,6 +1,6 @@
 {
   "name": "sudapost-app",
-  "homepage": "https://khalid205.github.io/sudapost-app/",
+  "homepage": ".",
   "private": true,
   "version": "0.0.0",
   "type": "module",

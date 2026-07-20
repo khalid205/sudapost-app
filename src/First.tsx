@@ -11,7 +11,7 @@ import { Link } from 'react-router-dom'; // استيراد Link
 // استيراد الصور
 import picmap from './Untitled-1.jpg';
 import './First.css';
-import logo7 from './AbsherApp.png';
+import logo7 from './AbsherApp.png'
 
 interface ServiceItem {
   id: number;
