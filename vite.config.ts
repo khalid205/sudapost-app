@@ -3,6 +3,5 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   plugins: [react()],
-  // هذا هو السطر المسؤول عن إصلاح خطأ 404 للملفات
-  base: '/sudapost-app/', 
+  base: './', // <--- هذا السطر هو الأهم لحل مشكلة الصفحة البيضاء
 })
