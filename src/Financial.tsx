@@ -9,6 +9,8 @@ import {
   CheckCircleFill, 
   EnvelopeCheckFill
 } from 'react-bootstrap-icons';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { auth } from './firebase'; // تأكد من صحة مسار ملف الـ firebase لديك
 
 // تعريف واجهات البيانات بدقة لتجنب أخطاء الـ Type
 interface FinancialService {
@@ -30,6 +32,13 @@ const FinancialServicesPage: React.FC = () => {
   const [showLoadingModal, setShowLoadingModal] = useState<boolean>(false);
   const [showSuccessModal, setShowSuccessModal] = useState<boolean>(false);
   const [validated, setValidated] = useState<boolean>(false);
+
+  // حالات خاصة بنظام المصادقة (التحقق عند تقديم الطلب المالي)
+  const [showAuthModal, setShowAuthModal] = useState<boolean>(false);
+  const [loginEmail, setLoginEmail] = useState<string>('');
+  const [loginPassword, setLoginPassword] = useState<string>('');
+  const [authError, setAuthError] = useState<string>('');
+  const [isLoggingIn, setIsLoggingIn] = useState<boolean>(false);
 
   // حقول النموذج
   const [phoneNumber, setPhoneNumber] = useState<string>('');
@@ -103,30 +112,66 @@ const FinancialServicesPage: React.FC = () => {
     if (form.checkValidity() === false) {
       event.stopPropagation();
       setValidated(true);
-    } else {
-      // 1. طباعة مدخلات المستخدم في الـ Console
-      console.log("=== مدخلات طلب المستخدم ===");
-      console.log("معرّف الخدمة:", selectedService?.id);
-      console.log("اسم الخدمة الحالية:", selectedService?.title);
-      console.log("اسم العميل كامل:", clientName);
-      console.log("رقم الهاتف المتلقي:", phoneNumber);
-      console.log("القيمة الحركية للنموذج:", dynamicValue);
-      console.log("===========================");
+      return;
+    } 
 
-      setShowFormModal(false); // إغلاق نافذة إدخال البيانات أولاً
-      setShowLoadingModal(true); // إظهار نافذة المعالجة والـ Spinner
+    setValidated(false);
 
-      // محاكاة معالجة الطلب لمدة 4 ثوانٍ
-      setTimeout(() => {
-        setShowLoadingModal(false); // إغلاق نافذة الـ Spinner
-        setShowSuccessModal(true);  // إظهار رسالة النجاح والـ Modal النهائية
+    // 1. التحقق مما إذا كان المستخدم مسجلاً الدخول في Firebase
+    const currentUser = auth.currentUser;
+    if (!currentUser) {
+      // إذا لم يكن مسجلاً، نغلق نافذة الإدخال ونظهر نافذة تسجيل الدخول المنبثقة
+      setShowFormModal(false);
+      setShowAuthModal(true);
+      return;
+    }
 
-        // 2. تأكيد وتفريغ المدخلات وإعادة التعيين بالكامل لوضع البداية
-        setClientName('');
-        setPhoneNumber('');
-        setDynamicValue('');
-        setValidated(false);
-      }, 4000); 
+    // 2. إذا كان مسجلاً، نكمل العملية مباشرة
+    processFinancialSubmission();
+  };
+
+  // دالة تنفيذ العملية المالية بعد التأكد من تسجيل الدخول
+  const processFinancialSubmission = () => {
+    // 1. طباعة مدخلات المستخدم في الـ Console
+    console.log("=== مدخلات طلب المستخدم ===");
+    console.log("معرّف الخدمة:", selectedService?.id);
+    console.log("اسم الخدمة الحالية:", selectedService?.title);
+    console.log("اسم العميل كامل:", clientName);
+    console.log("رقم الهاتف المتلقي:", phoneNumber);
+    console.log("القيمة الحركية للنموذج:", dynamicValue);
+    console.log("===========================");
+
+    setShowFormModal(false); // إغلاق نافذة إدخال البيانات
+    setShowLoadingModal(true); // إظهار نافذة المعالجة والـ Spinner
+
+    // محاكاة معالجة الطلب لمدة 4 ثوانٍ
+    setTimeout(() => {
+      setShowLoadingModal(false); // إغلاق نافذة الـ Spinner
+      setShowSuccessModal(true);  // إظهار رسالة النجاح والـ Modal النهائية
+
+      // 2. تأكيد وتفريغ المدخلات وإعادة التعيين بالكامل لوضع البداية
+      setClientName('');
+      setPhoneNumber('');
+      setDynamicValue('');
+      setValidated(false);
+    }, 4000); 
+  };
+
+  // دالة تسجيل الدخول عبر النافذة المنبثقة
+  const handleModalLogin = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setAuthError('');
+    setIsLoggingIn(true);
+
+    try {
+      await signInWithEmailAndPassword(auth, loginEmail, loginPassword);
+      // إذا نجح تسجيل الدخول:
+      setIsLoggingIn(false);
+      setShowAuthModal(false); // إغلاق نافذة تسجيل الدخول
+      processFinancialSubmission(); // استكمال معالجة الخدمة المالية تلقائياً
+    } catch (err) {
+      setIsLoggingIn(false);
+      setAuthError('البريد الإلكتروني أو كلمة المرور غير صحيحة.');
     }
   };
 
@@ -346,6 +391,67 @@ const FinancialServicesPage: React.FC = () => {
             </Modal.Body>
           </div>
         )}
+      </Modal>
+
+      {/* نافذة تسجيل الدخول المنبثقة (تظهر تلقائياً عند محاولة إرسال طلب بدون تسجيل دخول) */}
+      <Modal 
+        show={showAuthModal} 
+        onHide={() => setShowAuthModal(false)} 
+        centered
+        style={{ direction: 'rtl' }}
+      >
+        <div className="p-4 bg-white rounded-4 shadow-lg">
+          <div className="text-center mb-4">
+            <h4 className="fw-bold mb-1 text-dark">تسجيل الدخول مطلوب</h4>
+            <p className="text-muted small mb-0">يرجى إدخال بيانات حسابك للاستمرار وإتمام المعاملة المالية</p>
+          </div>
+
+          <Form onSubmit={handleModalLogin}>
+            {authError && <div className="alert alert-danger p-2 small mb-3">{authError}</div>}
+            
+            <Form.Group className="mb-3 text-end" controlId="modalEmail">
+              <Form.Label className="small fw-bold text-secondary">البريد الإلكتروني</Form.Label>
+              <Form.Control 
+                type="email" 
+                placeholder="أدخل البريد الإلكتروني" 
+                value={loginEmail}
+                onChange={(e) => setLoginEmail(e.target.value)}
+                required 
+                className="py-2"
+              />
+            </Form.Group>
+
+            <Form.Group className="mb-4 text-end" controlId="modalPassword">
+              <Form.Label className="small fw-bold text-secondary">كلمة المرور</Form.Label>
+              <Form.Control 
+                type="password" 
+                placeholder="••••••••" 
+                value={loginPassword}
+                onChange={(e) => setLoginPassword(e.target.value)}
+                required 
+                className="py-2"
+              />
+            </Form.Group>
+
+            <div className="d-grid gap-2">
+              <Button 
+                type="submit" 
+                className="py-2.5 fw-bold text-white border-0 shadow-sm"
+                style={{ backgroundColor: '#006650' }}
+                disabled={isLoggingIn}
+              >
+                {isLoggingIn ? <Spinner animation="border" size="sm" /> : 'تسجيل الدخول ومتابعة الطلب'}
+              </Button>
+              <Button 
+                variant="outline-secondary" 
+                onClick={() => setShowAuthModal(false)}
+                className="py-2 border-0 text-muted"
+              >
+                إلغاء
+              </Button>
+            </div>
+          </Form>
+        </div>
       </Modal>
 
       {/* النافذة المنبثقة الثانية: Spinner جاري معالجة طلبك */}

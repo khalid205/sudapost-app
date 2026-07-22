@@ -11,6 +11,8 @@ import Customs from './Customs';
 import Error404 from './Error404';
 import Footer from './Footer';
 
+
+
 function App(): React.JSX.Element {
   return (
   <>
@@ -18,13 +20,27 @@ function App(): React.JSX.Element {
       <Navbar />
       <div className="content">
         <Routes>
-          <Route path="/" element={<First />} />
-          <Route path="/Services" element={<Services />} />
-          <Route path="/ServicePost" element={<ServicePost />} />
-          <Route path="/HowPost" element={<HowPost />} />
-          <Route path="/Financial" element={<Financial />} />
-          <Route path="/Customs" element={<Customs />} />
-          <Route path="*" element={<Error404 />} />
+          <Route path="/" 
+          element={<First />} />
+
+          {/* الصفحات المحمية */}
+          <Route path="/Services" 
+          element={<Services />} />
+
+          <Route path="/ServicePost" 
+          element={<ServicePost />} />
+
+          <Route path="/HowPost" 
+          element={<HowPost /> } />
+
+          <Route path="/Financial" 
+          element={<Financial />} />
+
+            <Route path="/Customs" 
+            element={<Customs />} />
+
+            <Route path="*" element={<Error404 />} />
+
         </Routes>
       </div>
       <Footer />

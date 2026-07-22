@@ -4,6 +4,8 @@ import Suda4 from './Suda4.jpg';
 import Suda5 from './Suda5.jpg';
 import Suda6 from './Suda6.jpg';
 import { Globe2, ShieldCheck, GeoAlt, ArrowLeft } from "react-bootstrap-icons";
+import { Link } from 'react-router-dom';
+
 
 const ServicPost = () => {
     // 1. مصفوفة البيانات الديناميكية التي تجمع كافة الخدمات
@@ -117,14 +119,15 @@ const ServicPost = () => {
                                         </Row>
 
                                         {/* أزرار اتخاذ إجراء */}
-                                        <div className="d-flex flex-wrap gap-3 pt-2">
-                                            <Button 
-                                                href="/HowPost" 
-                                                className="btn px-4 py-3 border-0 shadow-sm d-flex align-items-center justify-content-center gap-2 fw-semibold"
-                                                style={{ backgroundColor: "#006650", color: "#ffffff" }}
-                                            >
-                                                أشحن الآن <ArrowLeft />
-                                            </Button>
+<div className="d-flex flex-wrap gap-3 pt-2">
+  <Button 
+    {...({ as: Link, to: "/HowPost" } as any)}
+    className="btn px-4 py-3 border-0 shadow-sm d-flex align-items-center justify-content-center gap-2 fw-semibold text-decoration-none"
+    style={{ backgroundColor: "#006650", color: "#ffffff" }}
+  >
+    أشحن الآن <ArrowLeft />
+  </Button>
+
                                             
                                             <Button 
                                                 href="/" 

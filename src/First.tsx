@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState } from 'react';
 import Carousel from 'react-bootstrap/Carousel';
 import Tab from 'react-bootstrap/Tab';
 import Tabs from 'react-bootstrap/Tabs';
@@ -6,371 +6,633 @@ import Container from 'react-bootstrap/Container';
 import Col from 'react-bootstrap/Col';
 import Nav from 'react-bootstrap/Nav';
 import Row from 'react-bootstrap/Row';
-import { Apple, GooglePlay, BoxSeam, ChevronRight, ChevronLeft, ArrowLeft } from 'react-bootstrap-icons'; // استدعاء أيقونات الشحن والمتاجر القياسية
-import { Link } from 'react-router-dom'; // استيراد Link
-// استيراد الصور
-import picmap from './Untitled-1.jpg';
+import { Link } from 'react-router-dom'; 
 import './First.css';
-import logo7 from './AbsherApp.png'
+import { Modal, Button, Form, Spinner } from 'react-bootstrap';
+import { 
+  createUserWithEmailAndPassword, 
+  sendPasswordResetEmail, 
+  signInWithEmailAndPassword,
+  updateProfile
+} from 'firebase/auth';
+import { auth } from './firebase'; 
+import picmap from './Untitled-1.jpg';
+import logo7 from './AbsherApp.png';
+import { Apple, BoxSeam, ChevronRight, ChevronLeft, ArrowLeft, Google } from 'react-bootstrap-icons';
 
-interface ServiceItem {
-  id: number;
-  title: string;
-  description: string; // إضافة حقل الوصف ليعرض تحت العنوان
-  icon: string;
-}
+
 
 export const MostUsedServices: React.FC = () => {
-  const services: ServiceItem[] = [
-    { id: 1, title: " أكثر من 16 مليون عملية إلكترونية عبر منصة سودابوست في أبريل 2026م", description: "نفذت منصة وزارة الداخلية الإلكترونية سوابوست خلال شهر أبريل الماضي 16,536,826 عملية إلكترونية، للمستفيدين عبر سوابوست أفراد وأعمال", icon: "bi-card-id" },
-    { id: 2, title: "منصة سودابوست تنفّذ أكثر من 448 مليون عملية إلكترونية في 2025م", description: "نفذت منصة وزارة الداخلية الإلكترونية سوابوست خلال العام الماضي (2025) 448,243,708 عمليات إلكترونية، للمستفيدين عبر سوابوست أفراد وأعمال.", icon: "bi-car-front" },
-    { id: 3, title: "أكثر من (43) مليون عملية إلكترونية عبر منصة سودابوست في مارس 2026م", description: "نفذت منصة وزارة الداخلية الإلكترونية سوابوست خلال شهر مارس الماضي (43,585,844) عملية إلكترونية، للمستفيدين عبر سوابوست أفراد وأعمال.", icon: "bi-truck" },
-    { id: 4, title: "أكثر من (42) مليون عملية إلكترونية عبر منصة سودابوست في فبراير 2026م", description: " نفذت منصة وزارة الداخلية الإلكترونية سوابوست خلال شهر فبراير الماضي (42,736,435) عملية إلكترونية، للمستفيدين عبر سوابوست أفراد وأعمال.", icon: "bi-exclamation-triangle" },
-    { id: 5, title: "أكثر من 44 مليون عملية إلكترونية عبر منصة سودابوست في يناير 2026", description: "نفذت منصة وزارة الداخلية الإلكترونية سوابوست خلال شهر يناير الماضي (44,831,914) عملية إلكترونية، للمستفيدين عبر سوابوست أفراد وأعمال.", icon: "bi-file-earmark-text" },
-    
+
+  const services = [
+    {
+      id: 1,
+      title: "شحن بضائع ومواد تموينية",
+      description: "نقل وشحن المواد التموينية والغذائية بأعلى معايير الجودة والتحكم الحراري.",
+      icon: "bi-box-seam"
+    },
+    {
+      id: 2,
+      title: "شحن أثاث منزلي ومكتبي",
+      description: "نظافة، تغليف، وفك وتركيب الأثاث المنزلي والمكتبي بعناية فائقة.",
+      icon: "bi-house-heart"
+    },
+    {
+      id: 3,
+      title: "شحن مواشي وأغنام",
+      description: "أساطيل مجهزة خصيصاً لنقل وشحن المواشي الحية وفق الاشتراطات الرسمية.",
+      icon: "bi-truck"
+    },
+
+    {
+      id: 4,
+      title: "شحن مركبات ",
+      description: "أساطيل مجهزة خصيصاً لنقل وشحن المركبات وفق الاشتراطات الرسمية.",
+      icon: "bi-truck"
+    }
   ];
 
+  // تعريف مرجع حاوية التمرير
   const scrollContainerRef = useRef<HTMLDivElement>(null);
-  
-  // حالات للتحكم في ظهور واختفاء الأسهم بناءً على التمرير
-  const [showRightArrow, setShowRightArrow] = useState(false);
-  const [showLeftArrow, setShowLeftArrow] = useState(true);
+  const [showRightArrow, setShowRightArrow] = useState(true);
 
-  // دالة لمراقبة التمرير وتحديث ظهور الأسهم
-  const handleScroll = () => {
+  // --- تعريف دالة scrollRight هنا ---
+  const scrollRight = () => {
     if (scrollContainerRef.current) {
-      const { scrollLeft, scrollWidth, clientWidth } = scrollContainerRef.current;
-      
-      const currentScroll = Math.abs(scrollLeft);
-      const maxScroll = scrollWidth - clientWidth;
-
-      // إظهار سهم اليمين إذا تحركنا عن البداية بأكثر من 10 بكسل
-      setShowRightArrow(currentScroll > 10);
-      
-      // إخفاء سهم اليسار إذا وصلنا لنهاية العناصر تقريباً
-      setShowLeftArrow(currentScroll < maxScroll - 10);
+      scrollContainerRef.current.scrollBy({
+        left: 300, // المسافة التي يتم التمرير إليها (بالبيكسل)
+        behavior: 'smooth'
+      });
     }
   };
 
-  // دالة التمرير لليسار (المزيد من الخدمات)
+  // --- تعريف دالة scrollLeft (اختياري للسهم الآخر) ---
   const scrollLeft = () => {
     if (scrollContainerRef.current) {
       scrollContainerRef.current.scrollBy({
         left: -300,
-        behavior: 'smooth',
+        behavior: 'smooth'
       });
     }
   };
 
-  // دالة التمرير لليمين (الرجوع للبداية)
-  const scrollRight = () => {
-    if (scrollContainerRef.current) {
-      scrollContainerRef.current.scrollBy({
-        left: 300,
-        behavior: 'smooth',
-      });
+  const [showLeftArrow, setShowLeftArrow] = useState(true);
+
+  const handleScroll = () => {
+  if (scrollContainerRef.current) {
+    const { scrollLeft, scrollWidth, clientWidth } = scrollContainerRef.current;
+    
+    // نستخدم Math.abs لأن التمرير في الواجهات العربية (RTL) قد يعطي قيماً سالبة
+    const currentScroll = Math.abs(scrollLeft);
+
+    // إظهار سهم اليمين إذا تحركنا من نقطة البداية
+    setShowRightArrow(currentScroll > 0);
+    
+    // إظهار سهم اليسار إذا لم نصل إلى نهاية الحاوية
+    setShowLeftArrow(currentScroll < scrollWidth - clientWidth - 5);
+  }
+};
+
+
+
+  // 1. حالات شاشة تسجيل الدخول (الرئيسية في الكارد العائم)
+  const [usernameOrId, setUsernameOrId] = useState('');
+  const [password, setPassword] = useState('');
+  const [loginLoading, setLoginLoading] = useState(false);
+  const [loginError, setLoginError] = useState('');
+  const [loginSuccess, setLoginSuccess] = useState(false);
+
+  // حالات التحكم في النوافذ المنبثقة (Modals)
+  const [showRegisterModal, setShowRegisterModal] = useState(false);
+  const [showForgotModal, setShowForgotModal] = useState(false);
+
+  // 2. حالات شاشة "تسجيل حساب جديد"
+  const [regFullName, setRegFullName] = useState('');
+  const [regEmail, setRegEmail] = useState('');
+  const [regPassword, setRegPassword] = useState('');
+  const [regConfirmPassword, setRegConfirmPassword] = useState('');
+  const [regLoading, setRegLoading] = useState(false);
+  const [regError, setRegError] = useState('');
+  const [regSuccess, setRegSuccess] = useState(false);
+
+  // 3. حالات شاشة "نسيت كلمة المرور"
+  const [forgotEmail, setForgotEmail] = useState('');
+  const [forgotLoading, setForgotLoading] = useState(false);
+  const [forgotError, setForgotError] = useState('');
+  const [forgotSuccess, setForgotSuccess] = useState(false);
+
+ 
+
+  // تنفيذ شاشة تسجيل الدخول
+  const handleLoginSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoginError('');
+    setLoginLoading(true);
+
+    try {
+      await signInWithEmailAndPassword(auth, usernameOrId, password);
+      setLoginLoading(false);
+      setLoginSuccess(true);
+    } catch (err: any) {
+      setLoginLoading(false);
+      setLoginError('فشل تسجيل الدخول: تأكد من صحة البريد الإلكتروني أو كلمة المرور.');
     }
   };
 
-  // التأكد من فحص حالة التمرير الأولية عند تحميل المكون
-  useEffect(() => {
-    handleScroll();
-  }, []);
+  // تنفيذ شاشة تسجيل حساب جديد
+  const handleRegisterSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setRegError('');
 
+    if (regPassword !== regConfirmPassword) {
+      setRegError('كلمتا المرور غير متطابقتين. يرجى التحقق مرة أخرى.');
+      return;
+    }
 
+    setRegLoading(true);
 
+    try {
+      const userCredential = await createUserWithEmailAndPassword(auth, regEmail, regPassword);
+      
+      if (userCredential.user) {
+        await updateProfile(userCredential.user, {
+          displayName: regFullName
+        });
+      }
+
+      setRegLoading(false);
+      setRegSuccess(true);
+    } catch (err: any) {
+      setRegLoading(false);
+      if (err.code === 'auth/email-already-in-use') {
+        setRegError('البريد الإلكتروني مستخدم مسبقاً، يرجى تسجيل الدخول بدلاً من ذلك.');
+      } else if (err.code === 'auth/weak-password') {
+        setRegError('كلمة المرور ضعيفة جداً، يجب أن تكون 6 أحرف على الأقل.');
+      } else {
+        setRegError('حدث خطأ أثناء إنشاء الحساب. حاول مرة أخرى.');
+      }
+    }
+  };
+
+  // تنفيذ شاشة نسيت كلمة المرور
+  const handleForgotSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setForgotError('');
+    setForgotLoading(true);
+
+    try {
+      await sendPasswordResetEmail(auth, forgotEmail);
+      setForgotLoading(false);
+      setForgotSuccess(true);
+    } catch (err: any) {
+      setForgotLoading(false);
+      if (err.code === 'auth/user-not-found') {
+        setForgotError('لم يتم العثور على حساب مرتبط بهذا البريد الإلكتروني.');
+      } else {
+        setForgotError('حدث خطأ أثناء إرسال رابط الاستعادة. تأكد من صحة البريد.');
+      }
+    }
+  };
 
   
 
   return (
-    <div>
-     {/* القسم الأول: السلايدر الرئيسي للإعلانات مع لوحة الدخول في أقصى اليسار */}
-     <section className="position-relative" style={{ direction: 'rtl' }}>
-  
-  {/* لوحة تسجيل الدخول العائمة - حجم متوسط متناسق وخلفية بيضاء ناصعة */}
-  <div 
-    className="position-absolute top-50 translate-middle-y shadow-lg d-none d-md-block"
-    style={{ 
-      left: '8%', 
-      zIndex: 10, 
-      width: '370px', /* حجم متوسط موزون */
-      backgroundColor: '#ffffff', /* بيضاء ناصعة بالكامل */
-      borderRadius: '20px',
-      padding: '35px 30px', /* مسافات داخلية معتدلة لتقليل الطول الكلي */
-      border: '1px solid #e2e8f0',
-      boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)'
-    }}
-  >
-    {/* ترويسة الكارت */}
-    <div className="text-center mb-4">
-      <h4 className="fw-bold mb-1" style={{ color: '#102a43' }}>تسجيل الدخول</h4>
-      <p className="text-muted small mb-0">الوصول الآمن لخدمات منصة سودابوست</p>
-    </div>
+    <div dir="rtl" style={{ textAlign: 'right' }}>
+      {/* القسم الأول: السلايدر الرئيسي للإعلانات مع شاشة/لوحة تسجيل الدخول في أقصى اليسار */}
+      <section className="position-relative" style={{ direction: 'rtl', minHeight: '500px', backgroundColor: '#f8f9fa' }}>
+        
+        {/* الكاروسيل */}
+        <Carousel indicators={true} controls={false} interval={4000} fade>
+          {[
+            "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?q=80&w=1200&auto=format&fit=crop",
+            "https://images.unsplash.com/photo-1494412574643-ff11b0a5c1c3?q=80&w=1200&auto=format&fit=crop",
+            "https://images.unsplash.com/photo-1595246140625-573b715d11dc?q=80&w=1200&auto=format&fit=crop"
+          ].map((imgUrl, index) => (
+            <Carousel.Item key={index} style={{ maxHeight: '550px', position: 'relative' }}>
+              <img src={imgUrl} className="d-block w-100 object-fit-cover" style={{ height: '520px' }} alt="" />
+              <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0, 0, 0, 0.55)', zIndex: 1 }}></div>
+            </Carousel.Item>
+          ))}
+        </Carousel>
+    
+        {/* [1] شاشة تسجيل الدخول الرئيسية (الكارد العائم) */}
+        <div 
+          className="position-absolute top-50 translate-middle-y shadow-lg d-none d-md-block"
+          style={{ 
+            left: '8%', 
+            zIndex: 10, 
+            width: '380px', 
+            backgroundColor: '#ffffff', 
+            borderRadius: '20px',
+            padding: '35px 30px', 
+            border: '1px solid #e2e8f0'
+          }}
+        >
+          <div className="text-center mb-4">
+            <h4 className="fw-bold mb-1" style={{ color: '#102a43' }}>تسجيل الدخول</h4>
+            <p className="text-muted small mb-0">الوصول الآمن لخدمات منصة سودابوست</p>
+          </div>
 
-    {/* حقول الإدخال */}
-    <form onSubmit={(e) => e.preventDefault()}>
-      <div className="mb-3"> {/* مسافات متزنة تعطي حجماً معتدلاً */}
-        <label className="form-label small fw-bold text-secondary mb-1">اسم المستخدم أو رقم الهوية</label>
-        <div className="input-group">
-          <span className="input-group-text bg-light border-start-0" style={{ borderTopRightRadius: '8px', borderBottomRightRadius: '8px', padding: '10px' }}>
-            <i className="bi bi-person text-muted"></i>
-          </span>
-          <input 
-            type="text" 
-            className="form-control bg-light border-end-0" 
-            placeholder="أدخل رقم الهوية"
-            style={{ borderTopLeftRadius: '8px', borderBottomLeftRadius: '8px', fontSize: '0.9rem', padding: '10px' }} 
-          />
+          {loginSuccess ? (
+            <div className="text-center py-4">
+              <div className="text-success display-5 mb-2">✓</div>
+              <h5 className="fw-bold text-success">تم تسجيل الدخول بنجاح!</h5>
+              <p className="text-muted small">مرحباً بك مجدداً في منصة سودابوست.</p>
+              <button 
+                className="btn btn-outline-secondary btn-sm mt-2" 
+                onClick={() => setLoginSuccess(false)}
+              >
+                تسجيل الخروج
+              </button>
+            </div>
+          ) : (
+            <>
+              {loginError && <div className="alert alert-danger p-2 small mb-3 text-center">{loginError}</div>}
+
+              <form onSubmit={handleLoginSubmit}>
+                <div className="mb-3"> 
+                  <label className="form-label small fw-bold text-secondary mb-1">البريد الإلكتروني</label>
+                  <div className="input-group">
+                    <span className="input-group-text bg-light border-start-0" style={{ borderTopRightRadius: '8px', borderBottomRightRadius: '8px', padding: '10px' }}>
+                      <i className="bi bi-person text-muted"></i>
+                    </span>
+                    <input 
+                      type="email" 
+                      className="form-control bg-light border-end-0" 
+                      placeholder="name@example.com"
+                      value={usernameOrId}
+                      onChange={(e) => setUsernameOrId(e.target.value)}
+                      style={{ borderTopLeftRadius: '8px', borderBottomLeftRadius: '8px', fontSize: '0.9rem', padding: '10px' }} 
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="mb-3">
+                  <label className="form-label small fw-bold text-secondary mb-1">كلمة المرور</label>
+                  <div className="input-group">
+                    <span className="input-group-text bg-light border-start-0" style={{ borderTopRightRadius: '8px', borderBottomRightRadius: '8px', padding: '10px' }}>
+                      <i className="bi bi-lock text-muted"></i>
+                    </span>
+                    <input 
+                      type="password" 
+                      className="form-control bg-light border-end-0" 
+                      placeholder="••••••••"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      style={{ borderTopLeftRadius: '8px', borderBottomLeftRadius: '8px', fontSize: '0.9rem', padding: '10px' }} 
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="d-flex justify-content-between align-items-center mb-4 small">
+                  <button 
+                    type="button" 
+                    className="btn btn-link p-0 text-decoration-none" 
+                    style={{ color: '#2b8a3e', fontWeight: '600' }}
+                    onClick={() => { 
+                      setShowForgotModal(true); 
+                      setForgotSuccess(false); 
+                      setForgotError(''); 
+                      setForgotEmail('');
+                    }}
+                  >
+                    نسيت كلمة المرور؟
+                  </button>
+
+                  <button 
+                    type="button" 
+                    className="btn btn-link p-0 text-decoration-none text-secondary fw-semibold"
+                    onClick={() => { 
+                      setShowRegisterModal(true); 
+                      setRegSuccess(false); 
+                      setRegError(''); 
+                      setRegFullName('');
+                      setRegEmail('');
+                      setRegPassword('');
+                      setRegConfirmPassword('');
+                    }}
+                  >
+                    مستخدم جديد؟
+                  </button>
+                </div>
+
+                <button 
+                  type="submit" 
+                  className="btn w-100 py-2.5 fw-bold text-white shadow-sm d-flex align-items-center justify-content-center gap-2"
+                  style={{ backgroundColor: '#1e5631', borderRadius: '8px', fontSize: '1rem', border: 'none' }}
+                  disabled={loginLoading}
+                >
+                  {loginLoading ? <Spinner animation="border" size="sm" /> : 'تسجيل الدخول'}
+                </button>
+              </form>
+            </>
+          )}
         </div>
-      </div>
+      </section>
 
-      <div className="mb-3">
-        <label className="form-label small fw-bold text-secondary mb-1">كلمة المرور</label>
-        <div className="input-group">
-          <span className="input-group-text bg-light border-start-0" style={{ borderTopRightRadius: '8px', borderBottomRightRadius: '8px', padding: '10px' }}>
-            <i className="bi bi-lock text-muted"></i>
-          </span>
-          <input 
-            type="password" 
-            className="form-control bg-light border-end-0" 
-            placeholder="••••••••"
-            style={{ borderTopLeftRadius: '8px', borderBottomLeftRadius: '8px', fontSize: '0.9rem', padding: '10px' }} 
-          />
-        </div>
-      </div>
-
-      {/* روابط مساعدة */}
-      <div className="d-flex justify-content-between align-items-center mb-4 small">
-        <a href="#forgot" className="text-decoration-none" style={{ color: '#2b8a3e', fontWeight: '600' }}>نسيت كلمة المرور؟</a>
-        <a href="#register" className="text-decoration-none text-secondary fw-semibold">مستخدم جديد؟</a>
-      </div>
-
-      {/* زر الدخول الأخضر */}
-      <button 
-        type="submit" 
-        className="btn w-100 py-2.5 fw-bold text-white shadow-sm"
-        style={{ 
-          backgroundColor: '#1e5631', 
-          borderRadius: '8px',
-          fontSize: '1rem',
-          transition: 'all 0.2s',
-          border: 'none'
-        }}
-      >
-        تسجيل الدخول
-      </button>
-    </form>
-  </div>
-
-  {/* الكاروسيل */}
-
-  
-  <Carousel indicators={true} controls={false} interval={4000} fade>
-  
-  {/* الصورة الأولى */}
-  <Carousel.Item style={{ maxHeight: '550px', position: 'relative' }}>
-    <img src="https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?q=80&w=1200&auto=format&fit=crop" className="d-block w-100 object-fit-cover" style={{ height: '520px' }} />
-    {/* طبقة التعتيم الواضحة */}
-    <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0, 0, 0, 0.55)', zIndex: 1 }}></div>
-  </Carousel.Item>
-
-  {/* الصورة الثانية */}
-  <Carousel.Item style={{ maxHeight: '550px', position: 'relative' }}>
-    <img src="https://images.unsplash.com/photo-1494412574643-ff11b0a5c1c3?q=80&w=1200&auto=format&fit=crop" className="d-block w-100 object-fit-cover" style={{ height: '520px' }} />
-    <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0, 0, 0, 0.55)', zIndex: 1 }}></div>
-  </Carousel.Item>
-
-  {/* الصورة الثالثة */}
-  <Carousel.Item style={{ maxHeight: '550px', position: 'relative' }}>
-    <img src="https://images.unsplash.com/photo-1595246140625-573b715d11dc?q=80&w=1200&auto=format&fit=crop" className="d-block w-100 object-fit-cover" style={{ height: '520px' }} />
-    <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0, 0, 0, 0.55)', zIndex: 1 }}></div>
-  </Carousel.Item>
-
-  {/* الصورة الرابعة */}
-  <Carousel.Item style={{ maxHeight: '550px', position: 'relative' }}>
-    <img src="https://images.unsplash.com/photo-1589758438368-0ad531db3366?q=80&w=1200&auto=format&fit=crop" className="d-block w-100 object-fit-cover" style={{ height: '520px' }} />
-    <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0, 0, 0, 0.55)', zIndex: 1 }}></div>
-  </Carousel.Item>
-
-  {/* الصورة الخامسة */}
-  <Carousel.Item style={{ maxHeight: '550px', position: 'relative' }}>
-    <img src="https://images.unsplash.com/photo-1556742044-3c52d6e88c62?q=80&w=1200&auto=format&fit=crop" className="d-block w-100 object-fit-cover" style={{ height: '520px' }} />
-    <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0, 0, 0, 0.55)', zIndex: 1 }}></div>
-  </Carousel.Item>
-
-  {/* الصورة السادسة */}
-  <Carousel.Item style={{ maxHeight: '550px', position: 'relative' }}>
-    <img src="https://images.unsplash.com/photo-1520038410233-7141be7e6f97?q=80&w=1200&auto=format&fit=crop" className="d-block w-100 object-fit-cover" style={{ height: '520px' }} />
-    <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0, 0, 0, 0.55)', zIndex: 1 }}></div>
-  </Carousel.Item>
-
-</Carousel>
-</section>
-
-
+      {/* قسم الخدمات الفورية والتبويبات الرئيسية */}
       <section className="mt-5" style={{ direction: 'rtl', textAlign: 'right' }}>
-      <Container>
-        {/* العناوين بالجهة اليمنى */}
-        <div className="title mb-4">
-          <h2 className="fw-bold" style={{ color: '#102a43' }}>خدمات سودابوست الفورية</h2>
-          <p style={{ color: '#627d98' }}>خدمات لا تتطلب تسجيل دخول لتنفيذها</p>
-        </div>
+        <Container>
+          <div className="title mb-4">
+            <h2 className="fw-bold" style={{ color: '#102a43' }}>خدمات سودابوست الفورية</h2>
+            <p style={{ color: '#627d98' }}>خدمات لا تتطلب تسجيل دخول لتنفيذها</p>
+          </div>
 
-        {/* التبويبات العلوية مع الكلاس المخصص */}
-        <Tabs transition={false} id="noanim-tab-example" className="mb-5 mt-4 custom-tabs border-0">
-          <Tab eventKey="مواعيد" title={<span><i className="bi bi-calendar2 me-2"></i> حجز مواعيد</span>} >
-            <Tab.Container id="left-tabs-example" defaultActiveKey="first">
-              <Row>
-                {/* التبويبات الجانبية أصبحت في اليمين تماماً */}
-                <Col sm={5} className="mb-4">
-                  <Nav variant="pills" className="flex-column custom-pills">
-                    <Nav.Item><Nav.Link eventKey="first"> <i className="bi bi-question-circle me-2"></i> إصدار رخصة قيادة</Nav.Link></Nav.Item>
-                    <Nav.Item><Nav.Link eventKey="second" className="my-2"> <i className="bi bi-question-circle me-2"></i> مواعيد الأحوال المدنية</Nav.Link></Nav.Item>
-                    <Nav.Item><Nav.Link eventKey="third"> <i className="bi bi-question-circle me-2"></i> مواعيد المديرية العامة للجوازات</Nav.Link></Nav.Item>
-                  </Nav>
-                </Col>
-                
-                {/* المحتوى جهة اليسار */}
-                <Col sm={7} style={{ borderRight: '1px solid #edf2f7', paddingRight: '30px' }}>
-                  <Tab.Content>
-                    <Tab.Pane eventKey="first">
-                      <h4 className="fw-bold mb-3" style={{ color: '#102a43' }}> إصدار رخصة قيادة </h4>
-                      <p className="text-muted" style={{ lineHeight: '1.6' }}>تتيح هذه الخدمة للمستفيدين حجز مواعيد التدريب في مدارس تعليم القيادة، ما يمكّنهم من استكمال متطلبات التدريب اللازم للحصول على رخصة القيادة، ثم إصدارها بعد إتمام كامل المتطلبات.</p>
-                      {/* زر أخضر متناسق مع هوية أبشر */}
-                      <Nav.Link as={Link} to="/HowPost" className="btn mt-4 px-4 py-2 fw-semibold shadow-sm" style={{ backgroundColor: "#006650", color: "#ffffff" }} >بدء الخدمة <ArrowLeft /></Nav.Link>
-                    </Tab.Pane>
-                    
-                    <Tab.Pane eventKey="second">
-                      <h4 className="fw-bold mb-3" style={{ color: '#102a43' }}>مواعيد الأحوال المدنية</h4>
-                      <p className="text-muted" style={{ lineHeight: '1.6' }}>تتيح هذه الخدمة للمستفيد حجز موعد جديد أو تعديل موعد سابق لمراجعة مكاتب الأحوال المدنية، مع عرض متطلبات تنفيذ الخدمة المطلوبة قبل الزيارة.</p>
-                        <Nav.Link as={Link} to="/HowPost" className="btn mt-4 px-4 py-2 fw-semibold shadow-sm" style={{ backgroundColor: "#006650", color: "#ffffff" }} >بدء الخدمة <ArrowLeft /></Nav.Link>
-                    </Tab.Pane>
-                    
-                    <Tab.Pane eventKey="third">
-                      <h4 className="fw-bold mb-3" style={{ color: '#102a43' }}>مواعيد المديرية العامة للجوازات</h4>
-                      <p className="text-muted" style={{ lineHeight: '1.6' }}>تتيح هذه الخدمة للأفراد المسجلين على منصة سودابوست حجز المواعيد لدى مكاتب المديرية العامة للجوازات.</p>
-                        <Nav.Link as={Link} to="/HowPost" className="btn mt-4 px-4 py-2 fw-semibold shadow-sm" style={{ backgroundColor: "#006650", color: "#ffffff" }} >بدء الخدمة <ArrowLeft /></Nav.Link>
-                    </Tab.Pane>
-                  </Tab.Content>
-                </Col>
-              </Row>
-            </Tab.Container>
-          </Tab>
+          <Tabs transition={false} id="noanim-tab-example" className="mb-5 mt-4 custom-tabs border-0">
+            {/* Tab 1: مواعيد */}
+            <Tab eventKey="مواعيد" title={<span><i className="bi bi-calendar2 me-2"></i> حجز مواعيد</span>} >
+              <Tab.Container id="left-tabs-example" defaultActiveKey="first">
+                <Row>
+                  <Col sm={5} className="mb-4">
+                    <Nav variant="pills" className="flex-column custom-pills">
+                      <Nav.Item><Nav.Link eventKey="first"><i className="bi bi-question-circle me-2"></i> إصدار رخصة قيادة</Nav.Link></Nav.Item>
+                      <Nav.Item><Nav.Link eventKey="second" className="my-2"><i className="bi bi-question-circle me-2"></i> مواعيد الأحوال المدنية</Nav.Link></Nav.Item>
+                      <Nav.Item><Nav.Link eventKey="third"><i className="bi bi-question-circle me-2"></i> مواعيد المديرية العامة للجوازات</Nav.Link></Nav.Item>
+                    </Nav>
+                  </Col>
+                  <Col sm={7} style={{ borderRight: '1px solid #edf2f7', paddingRight: '30px' }}>
+                    <Tab.Content>
+                      <Tab.Pane eventKey="first">
+                        <h4 className="fw-bold mb-3" style={{ color: '#102a43' }}>إصدار رخصة قيادة</h4>
+                        <p className="text-muted" style={{ lineHeight: '1.6' }}>تتيح هذه الخدمة للمستفيدين حجز مواعيد التدريب في مدارس تعليم القيادة وإصدار الرخصة.</p>
+                        <Nav.Link as={Link} to="/HowPost" className="btn mt-4 px-4 py-2 fw-semibold shadow-sm d-inline-flex align-items-center gap-2" style={{ backgroundColor: "#006650", color: "#ffffff" }}>بدء الخدمة <ArrowLeft /></Nav.Link>
+                      </Tab.Pane>
+                      <Tab.Pane eventKey="second">
+                        <h4 className="fw-bold mb-3" style={{ color: '#102a43' }}>مواعيد الأحوال المدنية</h4>
+                        <p className="text-muted" style={{ lineHeight: '1.6' }}>تتيح هذه الخدمة للمستفيد حجز موعد جديد أو تعديل موعد سابق لمراجعة مكاتب الأحوال المدنية.</p>
+                        <Nav.Link as={Link} to="/HowPost" className="btn mt-4 px-4 py-2 fw-semibold shadow-sm d-inline-flex align-items-center gap-2" style={{ backgroundColor: "#006650", color: "#ffffff" }}>بدء الخدمة <ArrowLeft /></Nav.Link>
+                      </Tab.Pane>
+                      <Tab.Pane eventKey="third">
+                        <h4 className="fw-bold mb-3" style={{ color: '#102a43' }}>مواعيد المديرية العامة للجوازات</h4>
+                        <p className="text-muted" style={{ lineHeight: '1.6' }}>تتيح هذه الخدمة للأفراد المسجلين على منصة سودابوست حجز المواعيد لدى مكاتب المديرية العامة للجوازات.</p>
+                        <Nav.Link as={Link} to="/HowPost" className="btn mt-4 px-4 py-2 fw-semibold shadow-sm d-inline-flex align-items-center gap-2" style={{ backgroundColor: "#006650", color: "#ffffff" }}>بدء الخدمة <ArrowLeft /></Nav.Link>
+                      </Tab.Pane>
+                    </Tab.Content>
+                  </Col>
+                </Row>
+              </Tab.Container>
+            </Tab>
 
-          <Tab eventKey="مركبات" title={<span><i className="bi bi-car-front-fill me-2"></i> شحن مركبات</span>}>
-            <Tab.Container id="left-tabs-example" defaultActiveKey="first">
-              <Row>
-                <Col sm={5} className="mb-4">
-                  <Nav variant="pills" className="flex-column custom-pills">
-                    <Nav.Item><Nav.Link eventKey="first"> <i className="bi bi-question-circle me-2"></i> استعراض المراكز المعتمدة لإسقاط المركبات</Nav.Link></Nav.Item>
-                    <Nav.Item><Nav.Link eventKey="second" className="my-2"> <i className="bi bi-question-circle me-2"></i> مزاد اللوحات</Nav.Link></Nav.Item>
-                  </Nav>
-                </Col>
-                <Col sm={7} style={{ borderRight: '1px solid #edf2f7', paddingRight: '30px' }}>
-                  <Tab.Content>
-                    <Tab.Pane eventKey="first">
-                      <h4 className="fw-bold mb-3" style={{ color: '#102a43' }}> استعراض المراكز المعتمدة لإسقاط المركبات </h4>
-                      <p className="text-muted" style={{ lineHeight: '1.6' }}>تتيح هذه الخدمة التعرّف على المراكز المعتمدة لدى منصة سودابوست في مختلف مناطق المملكة؛ لإسقاط جميع أنواع المركبات المهملة والتالفة.</p>
-                         <Nav.Link as={Link} to="/HowPost" className="btn mt-4 px-4 py-2 fw-semibold shadow-sm" style={{ backgroundColor: "#006650", color: "#ffffff" }} >بدء الخدمة <ArrowLeft /></Nav.Link>
-                    </Tab.Pane>
-                    <Tab.Pane eventKey="second">
-                      <h4 className="fw-bold mb-3" style={{ color: '#102a43' }}>مزاد اللوحات</h4>
-                      <p className="text-muted" style={{ lineHeight: '1.6' }}>تتيح هذه الخدمة إمكانية المزايدة على لوحة مركبة من نوع خصوصي، أو نقل خاص أو دراجة نارية.</p>
-                        <Nav.Link as={Link} to="/HowPost" className="btn mt-4 px-4 py-2 fw-semibold shadow-sm" style={{ backgroundColor: "#006650", color: "#ffffff" }} >بدء الخدمة <ArrowLeft /></Nav.Link>
-                    </Tab.Pane>
-                  </Tab.Content>
-                </Col>
-              </Row>
-            </Tab.Container>
-          </Tab>
+            {/* Tab 2: مركبات */}
+            <Tab eventKey="مركبات" title={<span><i className="bi bi-car-front-fill me-2"></i> شحن مركبات</span>}>
+              <Tab.Container id="left-tabs-example" defaultActiveKey="first">
+                <Row>
+                  <Col sm={5} className="mb-4">
+                    <Nav variant="pills" className="flex-column custom-pills">
+                      <Nav.Item><Nav.Link eventKey="first"><i className="bi bi-question-circle me-2"></i> استعراض المراكز المعتمدة لإسقاط المركبات</Nav.Link></Nav.Item>
+                      <Nav.Item><Nav.Link eventKey="second" className="my-2"><i className="bi bi-question-circle me-2"></i> مزاد اللوحات</Nav.Link></Nav.Item>
+                    </Nav>
+                  </Col>
+                  <Col sm={7} style={{ borderRight: '1px solid #edf2f7', paddingRight: '30px' }}>
+                    <Tab.Content>
+                      <Tab.Pane eventKey="first">
+                        <h4 className="fw-bold mb-3" style={{ color: '#102a43' }}>استعراض المراكز المعتمدة لإسقاط المركبات</h4>
+                        <p className="text-muted" style={{ lineHeight: '1.6' }}>تتيح هذه الخدمة التعرّف على المراكز المعتمدة لإسقاط جميع أنواع المركبات المهملة والتالفة.</p>
+                        <Nav.Link as={Link} to="/HowPost" className="btn mt-4 px-4 py-2 fw-semibold shadow-sm d-inline-flex align-items-center gap-2" style={{ backgroundColor: "#006650", color: "#ffffff" }}>بدء الخدمة <ArrowLeft /></Nav.Link>
+                      </Tab.Pane>
+                      <Tab.Pane eventKey="second">
+                        <h4 className="fw-bold mb-3" style={{ color: '#102a43' }}>مزاد اللوحات</h4>
+                        <p className="text-muted" style={{ lineHeight: '1.6' }}>تتيح هذه الخدمة إمكانية المزايدة على لوحة مركبة من نوع خصوصي، أو نقل خاص أو دراجة نارية.</p>
+                        <Nav.Link as={Link} to="/HowPost" className="btn mt-4 px-4 py-2 fw-semibold shadow-sm d-inline-flex align-items-center gap-2" style={{ backgroundColor: "#006650", color: "#ffffff" }}>بدء الخدمة <ArrowLeft /></Nav.Link>
+                      </Tab.Pane>
+                    </Tab.Content>
+                  </Col>
+                </Row>
+              </Tab.Container>
+            </Tab>
 
-          <Tab eventKey="زوار" title={<span><i className="bi bi-bag-heart me-2"></i> شحن اثاثات</span>}>
-            <Tab.Container id="left-tabs-example" defaultActiveKey="first">
-              <Row>
-                <Col sm={5} className="mb-4">
-                  <Nav variant="pills" className="flex-column custom-pills">
-                    <Nav.Item><Nav.Link eventKey="first"> <i className="bi bi-question-circle me-2"></i> اثاثات منزلية</Nav.Link></Nav.Item>
-                    <Nav.Item><Nav.Link eventKey="second" className="my-2"> <i className="bi bi-question-circle me-2"></i> اثاثات مكتبية</Nav.Link></Nav.Item>
-                  </Nav>
-                </Col>
-                <Col sm={7} style={{ borderRight: '1px solid #edf2f7', paddingRight: '30px' }}>
-                  <Tab.Content>
-                    <Tab.Pane eventKey="first">
-                      <h4 className="fw-bold mb-3" style={{ color: '#102a43' }}> ارتقِ بأسلوب حياتك: أثاث فاخر يصنع فارقاً في منزلك </h4>
-                      <p className="text-muted" style={{ lineHeight: '1.6' }}>في متجرنا، نؤمن أن المنزل ليس مجرد مساحة، بل هو انعكاس لشخصيتك وذوقك الرفيع. ننسج الفخامة والراحة في كل قطعة أثاث ومفروشات نقدمها لك؛ حيث تجتمع جودة الخامات الإيطالية مع دقة التصميم العصري لنهديك مساحات دافئة تدوم لأجيال وتلهم ضيوفك من النظرة الأولى</p>
-                         <Nav.Link as={Link} to="/HowPost" className="btn mt-4 px-4 py-2 fw-semibold shadow-sm" style={{ backgroundColor: "#006650", color: "#ffffff" }} >بدء الخدمة <ArrowLeft /></Nav.Link>
-                    </Tab.Pane>
-                    <Tab.Pane eventKey="second">
-                      <h4 className="fw-bold mb-3" style={{ color: '#102a43' }}>صمّم بيئة عمل تلهم النجاح وتصنع الفارق لشركتك</h4>
-                      <p className="text-muted" style={{ lineHeight: '1.6' }}>نحن لا نبيع مجرد مكاتب، بل نبتكر مساحات عمل محفزة للإبداع والإنتاجية. نقدم للشركات والمنشآت حلولاً متكاملة من الأثاث المكتبي الفاخر؛ بدءاً من طاولات الاجتماعات الكبرى ومكاتب الإدارة التنفيذية، ووصولاً إلى وحدات العمل المشتركة الذكية، مصممة بخامات متميزة تعكس قوة هويتك التجارية أمام عملائك وموظفيك</p>
-                        <Nav.Link as={Link} to="/HowPost" className="btn mt-4 px-4 py-2 fw-semibold shadow-sm" style={{ backgroundColor: "#006650", color: "#ffffff" }} >بدء الخدمة <ArrowLeft /></Nav.Link>
-                    </Tab.Pane>
-                  </Tab.Content>
-                </Col>
-              </Row>
-            </Tab.Container>
-          </Tab>
+            {/* Tab 3: أثاث */}
+            <Tab eventKey="زوار" title={<span><i className="bi bi-bag-heart me-2"></i> شحن اثاثات</span>}>
+              <Tab.Container id="left-tabs-example" defaultActiveKey="first">
+                <Row>
+                  <Col sm={5} className="mb-4">
+                    <Nav variant="pills" className="flex-column custom-pills">
+                      <Nav.Item><Nav.Link eventKey="first"><i className="bi bi-question-circle me-2"></i> اثاثات منزلية</Nav.Link></Nav.Item>
+                      <Nav.Item><Nav.Link eventKey="second" className="my-2"><i className="bi bi-question-circle me-2"></i> اثاثات مكتبية</Nav.Link></Nav.Item>
+                    </Nav>
+                  </Col>
+                  <Col sm={7} style={{ borderRight: '1px solid #edf2f7', paddingRight: '30px' }}>
+                    <Tab.Content>
+                      <Tab.Pane eventKey="first">
+                        <h4 className="fw-bold mb-3" style={{ color: '#102a43' }}>ارتقِ بأسلوب حياتك: أثاث فاخر يصنع فارقاً في منزلك</h4>
+                        <p className="text-muted" style={{ lineHeight: '1.6' }}>ننسج الفخامة والراحة في كل قطعة أثاث ومفروشات نقدمها لك لتجتمع جودة الخامات مع دقة التصميم.</p>
+                        <Nav.Link as={Link} to="/HowPost" className="btn mt-4 px-4 py-2 fw-semibold shadow-sm d-inline-flex align-items-center gap-2" style={{ backgroundColor: "#006650", color: "#ffffff" }}>بدء الخدمة <ArrowLeft /></Nav.Link>
+                      </Tab.Pane>
+                      <Tab.Pane eventKey="second">
+                        <h4 className="fw-bold mb-3" style={{ color: '#102a43' }}>صمّم بيئة عمل تلهم النجاح وتصنع الفارق لشركتك</h4>
+                        <p className="text-muted" style={{ lineHeight: '1.6' }}>نقدم للشركات والمنشآت حلولاً متكاملة من الأثاث المكتبي الفاخر لتشجيع الإبداع والإنتاجية.</p>
+                        <Nav.Link as={Link} to="/HowPost" className="btn mt-4 px-4 py-2 fw-semibold shadow-sm d-inline-flex align-items-center gap-2" style={{ backgroundColor: "#006650", color: "#ffffff" }}>بدء الخدمة <ArrowLeft /></Nav.Link>
+                      </Tab.Pane>
+                    </Tab.Content>
+                  </Col>
+                </Row>
+              </Tab.Container>
+            </Tab>
 
-          <Tab eventKey="شهادات" title={<span><i className="bi bi-journal-bookmark-fill me"></i> استخراج وتوثيق شهادات</span>}>
-            <Tab.Container id="left-tabs-example" defaultActiveKey="first">
-              <Row>
-                <Col sm={5} className="mb-4">
-                  <Nav variant="pills" className="flex-column custom-pills">
-                    <Nav.Item><Nav.Link eventKey="first"> <i className="bi bi-question-circle me-2"></i> استعراض المراكز المعتمدة لاستخراج الشهادات في السعودية</Nav.Link></Nav.Item>
-                  </Nav>
-                </Col>
-                <Col sm={7} style={{ borderRight: '1px solid #edf2f7', paddingRight: '30px' }}>
-                  <Tab.Content>
-                    <Tab.Pane eventKey="first">
-                      <h4 className="fw-bold mb-3" style={{ color: '#102a43' }}> سودابوست هو دليلك الشامل للمراكز المعتمدة للشهادات المهنية بالمملكة </h4>
-                      <p className="text-muted" style={{ lineHeight: '1.6' }}>استثمر في مستقبلك المهني عبر جهات موثوقة. نستعرض لك الدليل الحصري والمنظم لكافة المراكز والمعاهد المعتمدة من الجهات الرسمية في المملكة العربية السعودية (مثل المؤسسة العامة للتدريب التقني والمهني، وصندوق "هدف") لاستخراج الشهادات الاحترافية والتقنية. نوفر لك عناء البحث لنضع بين يديك بوابتك المباشرة لتطوير مهاراتك بما يتوافق مع معايير سوق العمل السعودي ورؤية المملكة 2030</p>
-                       <Nav.Link as={Link} to="/HowPost" className="btn mt-4 px-4 py-2 fw-semibold shadow-sm" style={{ backgroundColor: "#006650", color: "#ffffff" }} >بدء الخدمة <ArrowLeft /></Nav.Link>
-                    </Tab.Pane>
-                  </Tab.Content>
-                </Col>
-              </Row>
-            </Tab.Container>
-          </Tab>
+            {/* Tab 4: شهادات */}
+            <Tab eventKey="شهادات" title={<span><i className="bi bi-journal-bookmark-fill me-2"></i> استخراج وتوثيق شهادات</span>}>
+              <Tab.Container id="left-tabs-example" defaultActiveKey="first">
+                <Row>
+                  <Col sm={5} className="mb-4">
+                    <Nav variant="pills" className="flex-column custom-pills">
+                      <Nav.Item><Nav.Link eventKey="first"><i className="bi bi-question-circle me-2"></i> استعراض المراكز المعتمدة</Nav.Link></Nav.Item>
+                    </Nav>
+                  </Col>
+                  <Col sm={7} style={{ borderRight: '1px solid #edf2f7', paddingRight: '30px' }}>
+                    <Tab.Content>
+                      <Tab.Pane eventKey="first">
+                        <h4 className="fw-bold mb-3" style={{ color: '#102a43' }}>دليلك الشامل للمراكز المعتمدة للشهادات المهنية</h4>
+                        <p className="text-muted" style={{ lineHeight: '1.6' }}>نستعرض لك الدليل الحصري لكافة المراكز والمعاهد المعتمدة من الجهات الرسمية في المملكة العربية السعودية.</p>
+                        <Nav.Link as={Link} to="/HowPost" className="btn mt-4 px-4 py-2 fw-semibold shadow-sm d-inline-flex align-items-center gap-2" style={{ backgroundColor: "#006650", color: "#ffffff" }}>بدء الخدمة <ArrowLeft /></Nav.Link>
+                      </Tab.Pane>
+                    </Tab.Content>
+                  </Col>
+                </Row>
+              </Tab.Container>
+            </Tab>
 
-          <Tab eventKey="مخالفات" title={<span><i className="bi bi-chat-right-text"></i> شحن بضاعة</span>}>
-            <Tab.Container id="left-tabs-example" defaultActiveKey="first">
-              <Row>
-                <Col sm={5} className="mb-4">
-                  <Nav variant="pills" className="flex-column custom-pills">
-                    <Nav.Item><Nav.Link eventKey="first"> <i className="bi bi-question-circle me-2"></i> شحن مواشي</Nav.Link></Nav.Item>
-                    <Nav.Item><Nav.Link eventKey="second" className="my-2"> <i className="bi bi-question-circle me-2"></i> شحن مواد تموينية</Nav.Link></Nav.Item>
-                    <Nav.Item><Nav.Link eventKey="three" className="my-2"> <i className="bi bi-question-circle me-2"></i> شحن اجهزة كهربائية</Nav.Link></Nav.Item>
-                  </Nav>
-                </Col>
-                <Col sm={7} style={{ borderRight: '1px solid #edf2f7', paddingRight: '30px' }}>
-                  <Tab.Content>
-                    <Tab.Pane eventKey="first">
-                      <h4 className="fw-bold mb-3" style={{ color: '#102a43' }}> التميز في نقل وشحن المواشي الحية من والي السعودية بأعلى معايير السلامة والرعاية </h4>
-                      <p className="text-muted" style={{ lineHeight: '1.6' }}>نحن لا ننقل مجرد شحنات، بل ندير ثروتك الحيوانية بعناية فائقة. نوفر لك حلولاً متكاملة لنقل وشحن المواشي الحية (برياً وبحرياً) عبر أساطيل مجهزة بالكامل ومطابقة للمواصفات القياسية؛ حيث نضمن التهوية المثالية، والتحكم الحراري، والتغذية المستمرة طوال الرحلة تحت إشراف طواقم بيطرية متخصصة، لضمان وصول قطيعك بأمان وصحة كاملة دون إجهاد.</p>
-                         <Nav.Link as={Link} to="/HowPost" className="btn mt-4 px-4 py-2 fw-semibold shadow-sm" style={{ backgroundColor: "#006650", color: "#ffffff" }} >بدء الخدمة <ArrowLeft /></Nav.Link>
-                    </Tab.Pane>
-                    <Tab.Pane eventKey="second">
-                      <h4 className="fw-bold mb-3" style={{ color: '#102a43' }}>حلول الشحن المبرد والجاف للمواد التموينية بأعلى معايير سلامة الغذاء</h4>
-                      <p className="text-muted" style={{ lineHeight: '1.6' }}>ندرك أهمية الحفاظ على جودة وقيمة شحناتك الغذائية حتى تصل إلى المستهلك النهائي. نوفر لك منظومة متكاملة لشحن المواد التموينية والغذائية عبر أساطيل مجهزة بأحدث تقنيات التحكم الحراري والرطوبة (تبريد، تجميد، وجاف)، ملتزمين بأدق المعايير الصحية العالمية لضمان حماية الشحنات من التلف أو التلوث طوال فترة الرحلة</p>
-                        <Nav.Link as={Link} to="/HowPost" className="btn mt-4 px-4 py-2 fw-semibold shadow-sm" style={{ backgroundColor: "#006650", color: "#ffffff" }} >بدء الخدمة <ArrowLeft /></Nav.Link>
-                    </Tab.Pane>
-                    <Tab.Pane eventKey="three">
-                      <h4 className="fw-bold mb-3" style={{ color: '#102a43' }}>شحن آمن ومضمون للأجهزة الكهربائية والإلكترونيات الحساسة</h4>
-                      <p className="text-muted" style={{ lineHeight: '1.6' }}>ندرك أن الأجهزة الكهربائية تتطلب معالجة خاصة وحماية فائقة ضد الصدمات والرطوبة. نوفر لك حلول شحن لوجستية متكاملة للأجهزة المنزلية والتقنية، مدعومة بأنظمة تغليف متطورة ومقاومة للاهتزازات، مع أسطول مجهز يضمن نقل بضائعك الثمينة بأمان تام من المصنع وحتى وصولها لعملائك دون أي أضرار تشغيلية. </p>
-                        <Nav.Link as={Link} to="/HowPost" className="btn mt-4 px-4 py-2 fw-semibold shadow-sm" style={{ backgroundColor: "#006650", color: "#ffffff" }} >بدء الخدمة <ArrowLeft /></Nav.Link>
-                    </Tab.Pane>
-                  </Tab.Content>
-                </Col>
-              </Row>
-            </Tab.Container>
-          </Tab>
-          
-          {/* يمكنك تطبيق نفس الهيكل على بقية الـ Tabs (زوار، شهادات، مخالفات) بسلاسة */}
-        </Tabs>
-      </Container>
-    </section>
+            {/* Tab 5: شحن بضاعة */}
+            <Tab eventKey="مخالفات" title={<span><i className="bi bi-chat-right-text me-2"></i> شحن بضاعة</span>}>
+              <Tab.Container id="left-tabs-example" defaultActiveKey="first">
+                <Row>
+                  <Col sm={5} className="mb-4">
+                    <Nav variant="pills" className="flex-column custom-pills">
+                      <Nav.Item><Nav.Link eventKey="first"><i className="bi bi-question-circle me-2"></i> شحن مواشي</Nav.Link></Nav.Item>
+                      <Nav.Item><Nav.Link eventKey="second" className="my-2"><i className="bi bi-question-circle me-2"></i> شحن مواد تموينية</Nav.Link></Nav.Item>
+                      <Nav.Item><Nav.Link eventKey="three" className="my-2"><i className="bi bi-question-circle me-2"></i> شحن اجهزة كهربائية</Nav.Link></Nav.Item>
+                    </Nav>
+                  </Col>
+                  <Col sm={7} style={{ borderRight: '1px solid #edf2f7', paddingRight: '30px' }}>
+                    <Tab.Content>
+                      <Tab.Pane eventKey="first">
+                        <h4 className="fw-bold mb-3" style={{ color: '#102a43' }}>التميز في نقل وشحن المواشي الحية بأعلى معايير السلامة</h4>
+                        <p className="text-muted" style={{ lineHeight: '1.6' }}>نوفر لك حلولاً متكاملة لنقل وشحن المواشي الحية عبر أساطيل مجهزة بالكامل ومطابقة للمواصفات.</p>
+                        <Nav.Link as={Link} to="/HowPost" className="btn mt-4 px-4 py-2 fw-semibold shadow-sm d-inline-flex align-items-center gap-2" style={{ backgroundColor: "#006650", color: "#ffffff" }}>بدء الخدمة <ArrowLeft /></Nav.Link>
+                      </Tab.Pane>
+                      <Tab.Pane eventKey="second">
+                        <h4 className="fw-bold mb-3" style={{ color: '#102a43' }}>حلول الشحن المبرد والجاف للمواد التموينية</h4>
+                        <p className="text-muted" style={{ lineHeight: '1.6' }}>منظومة متكاملة لشحن المواد التموينية والغذائية عبر أساطيل مجهزة بأحدث تقنيات التحكم الحراري.</p>
+                        <Nav.Link as={Link} to="/HowPost" className="btn mt-4 px-4 py-2 fw-semibold shadow-sm d-inline-flex align-items-center gap-2" style={{ backgroundColor: "#006650", color: "#ffffff" }}>بدء الخدمة <ArrowLeft /></Nav.Link>
+                      </Tab.Pane>
+                      <Tab.Pane eventKey="three">
+                        <h4 className="fw-bold mb-3" style={{ color: '#102a43' }}>شحن الأجهزة الكهربائية بعناية فائقة</h4>
+                        <p className="text-muted" style={{ lineHeight: '1.6' }}>نقل وتوصيل الأجهزة الحساسة والكهربائية مع ضمان الحماية التامة والتغليف الاحترافي.</p>
+                        <Nav.Link as={Link} to="/HowPost" className="btn mt-4 px-4 py-2 fw-semibold shadow-sm d-inline-flex align-items-center gap-2" style={{ backgroundColor: "#006650", color: "#ffffff" }}>بدء الخدمة <ArrowLeft /></Nav.Link>
+                      </Tab.Pane>
+                    </Tab.Content>
+                  </Col>
+                </Row>
+              </Tab.Container>
+            </Tab>
+          </Tabs>
+        </Container>
+      </section>
 
-    <section className="services-carousel-section position-relative py-5 bg-light mt-5 overflow-hidden" style={{ direction: 'rtl' }}>
+      {/* [2] نافذة إنشاء حساب جديد (Modal) */}
+      <Modal show={showRegisterModal} onHide={() => setShowRegisterModal(false)} centered>
+        <Modal.Body className="p-4 bg-white rounded-4 shadow-lg">
+          <div className="d-flex justify-content-between align-items-center mb-3">
+            <h4 className="fw-bold m-0" style={{ color: '#102a43' }}>إنشاء حساب جديد</h4>
+            <button type="button" className="btn-close" onClick={() => setShowRegisterModal(false)} />
+          </div>
+
+          {!regSuccess ? (
+            <Form onSubmit={handleRegisterSubmit}>
+              {regError && <div className="alert alert-danger p-2 small mb-3 text-center">{regError}</div>}
+              
+              <div className="mb-3">
+                <label className="form-label small fw-bold text-secondary">الاسم الكامل</label>
+                <input 
+                  type="text" 
+                  className="form-control py-2" 
+                  placeholder="أدخل اسمك الكامل"
+                  value={regFullName}
+                  onChange={(e) => setRegFullName(e.target.value)}
+                  required 
+                />
+              </div>
+
+              <div className="mb-3">
+                <label className="form-label small fw-bold text-secondary">البريد الإلكتروني</label>
+                <input 
+                  type="email" 
+                  className="form-control py-2" 
+                  placeholder="name@example.com"
+                  value={regEmail}
+                  onChange={(e) => setRegEmail(e.target.value)}
+                  required 
+                />
+              </div>
+
+              <div className="mb-3">
+                <label className="form-label small fw-bold text-secondary">كلمة المرور</label>
+                <input 
+                  type="password" 
+                  className="form-control py-2" 
+                  placeholder="6 أحرف على الأقل"
+                  value={regPassword}
+                  onChange={(e) => setRegPassword(e.target.value)}
+                  required 
+                  minLength={6}
+                />
+              </div>
+
+              <div className="mb-4">
+                <label className="form-label small fw-bold text-secondary">تأكيد كلمة المرور</label>
+                <input 
+                  type="password" 
+                  className="form-control py-2" 
+                  placeholder="أعد إدخال كلمة المرور"
+                  value={regConfirmPassword}
+                  onChange={(e) => setRegConfirmPassword(e.target.value)}
+                  required 
+                  minLength={6}
+                />
+              </div>
+
+              <Button 
+                type="submit" 
+                className="w-100 py-2.5 fw-bold border-0 text-white" 
+                style={{ backgroundColor: '#1e5631', borderRadius: '8px' }}
+                disabled={regLoading}
+              >
+                {regLoading ? <Spinner animation="border" size="sm" /> : 'تسجيل الحساب'}
+              </Button>
+            </Form>
+          ) : (
+            <div className="text-center py-4">
+              <div className="text-success display-4 mb-2">✓</div>
+              <h5 className="fw-bold">تم إنشاء الحساب بنجاح!</h5>
+              <p className="text-muted small">يمكنك الآن إغلاق النافذة وتسجيل الدخول بحسابك الجديد.</p>
+              <Button 
+                variant="dark" 
+                className="mt-3 px-4" 
+                onClick={() => setShowRegisterModal(false)}
+              >
+                إغلاق وتسجيل الدخول
+              </Button>
+            </div>
+          )}
+        </Modal.Body>
+      </Modal>
+
+      {/* [3] نافذة نسيت كلمة المرور (Modal) */}
+      <Modal show={showForgotModal} onHide={() => setShowForgotModal(false)} centered>
+        <Modal.Body className="p-4 bg-white rounded-4 shadow-lg">
+          <div className="d-flex justify-content-between align-items-center mb-3">
+            <h4 className="fw-bold m-0" style={{ color: '#102a43' }}>استعادة كلمة المرور</h4>
+            <button type="button" className="btn-close" onClick={() => setShowForgotModal(false)} />
+          </div>
+
+          {!forgotSuccess ? (
+            <Form onSubmit={handleForgotSubmit}>
+              <p className="text-muted small mb-3">
+                أدخل بريدك الإلكتروني المسجل، وسنرسل لك فوراً رابطاً آمناً لإعادة تعيين كلمة المرور.
+              </p>
+              
+              {forgotError && <div className="alert alert-danger p-2 small mb-3 text-center">{forgotError}</div>}
+
+              <div className="mb-4">
+                <label className="form-label small fw-bold text-secondary">البريد الإلكتروني</label>
+                <input 
+                  type="email" 
+                  className="form-control py-2" 
+                  placeholder="name@example.com"
+                  value={forgotEmail}
+                  onChange={(e) => setForgotEmail(e.target.value)}
+                  required 
+                />
+              </div>
+
+              <Button 
+                type="submit" 
+                className="w-100 py-2.5 fw-bold border-0 text-white" 
+                style={{ backgroundColor: '#1e5631', borderRadius: '8px' }}
+                disabled={forgotLoading}
+              >
+                {forgotLoading ? <Spinner animation="border" size="sm" /> : 'إرسال رابط الاستعادة'}
+              </Button>
+            </Form>
+          ) : (
+            <div className="text-center py-4">
+              <div className="text-success display-4 mb-2">✓</div>
+              <h5 className="fw-bold">تم إرسال الرابط بنجاح</h5>
+              <p className="text-muted small">تفقد صندوق الوارد في بريدك الإلكتروني واتبع التعليمات لتغيير كلمة المرور.</p>
+              <Button 
+                variant="dark" 
+                className="mt-3 px-4" 
+                onClick={() => setShowForgotModal(false)}
+              >
+                إغلاق
+              </Button>
+            </div>
+          )}
+        </Modal.Body>
+      </Modal>
+
+      <section className="services-carousel-section position-relative py-5 bg-light mt-5 overflow-hidden" style={{ direction: 'rtl' }}>
       
       {/* ستايل مخصص متجاوب مع الموبايل */}
       <style>{`
@@ -466,9 +728,7 @@ export const MostUsedServices: React.FC = () => {
       </Container>
     </section>
 
-    
-      {/* القسم الرابع: جهزة تفعيل ابشر  */}
-      <section className="mt-5">
+     <section className="mt-5">
       <Container>
       <div className="title">
             <h2 className="fw-bold" style={{ color: '#102a43' }}>فروع مكاتب سودابوست في السعودية</h2>
@@ -546,7 +806,7 @@ export const MostUsedServices: React.FC = () => {
       </section>
 
 
-        {/* قسم إنجازات الشركة بالأرقام */}
+       {/* قسم إنجازات الشركة بالأرقام */}
 <section className="my-5 py-5 bg-white" style={{ direction: 'rtl' }}>
   <div className="container">
     
@@ -618,6 +878,7 @@ export const MostUsedServices: React.FC = () => {
     </div>
   </div>
 </section>
+
 
 {/* القسم الثالث: كاروسيل خدمات وأخبار الشحن المحسّن لونيًا وهيكليًا */}
 <section className="services-carousel-section position-relative py-5 mt-5" style={{ backgroundColor: '#f4f6f9' }}>
@@ -722,7 +983,7 @@ export const MostUsedServices: React.FC = () => {
     </section>
 
 
-<section className="py-5 bg-white" style={{ direction: 'rtl', textAlign: 'right' }}>
+    <section className="py-5 bg-white" style={{ direction: 'rtl', textAlign: 'right' }}>
       <Container>
         <Row className="align-items-center justify-content-center">
           
@@ -778,7 +1039,7 @@ export const MostUsedServices: React.FC = () => {
               {/* Google Play */}
               <a href="#googleplay" className="text-decoration-none text-white d-flex align-items-center px-3 py-2" 
                  style={{ backgroundColor: '#000000', borderRadius: '10px', minWidth: '145px', transition: 'transform 0.2s' }}>
-                <GooglePlay size={22} className="me-2 ms-1" />
+                <Google size={22} className="me-2 ms-1" />
                 <div className="text-start d-flex flex-column ms-2">
                   <span style={{ fontSize: '0.65rem', color: '#a0aec0' }}>GET IT ON</span>
                   <span className="fw-bold" style={{ fontSize: '0.9rem', lineHeight: '1.2' }}>Google Play</span>
@@ -804,7 +1065,7 @@ export const MostUsedServices: React.FC = () => {
       </Container>
     </section>
 
-    <section className="py-5 bg-light" style={{ direction: 'rtl', textAlign: 'right' }}>
+     <section className="py-5 bg-light" style={{ direction: 'rtl', textAlign: 'right' }}>
   <Container>
     {/* حاوية فرعية مرنة لترتيب العناصر عمودياً تحت بعضها والبدء من اليمين */}
     <div className="d-flex flex-column align-items-start gap-3">

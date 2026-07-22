@@ -1,6 +1,9 @@
 import React, { useState, useRef } from 'react';
 import { Button, Col, Form, Row, Container, Card, Modal, Spinner } from 'react-bootstrap';
 import { CheckCircleFill, ShieldCheck, BoxSeam, PersonUp, PersonDown } from 'react-bootstrap-icons';
+import { auth } from './firebase'; // أزلنا getAuth من هنا لعدم الحاجة إليها
+import { signInWithEmailAndPassword } from 'firebase/auth';
+
 
 // تعريف واجهة البيانات للمدخلات لضمان سلامة كود TypeScript
 interface ShippingFormDate {
@@ -36,10 +39,18 @@ const ShippingForm: React.FC = () => {
   const [showLoadingModal, setShowLoadingModal] = useState<boolean>(false);
   const [showSuccessModal, setShowSuccessModal] = useState<boolean>(false);
   
+  // حالات خاصة بنظام المصادقة (التحقق عند الإرسال فقط)
+  const [showAuthModal, setShowAuthModal] = useState<boolean>(false);
+  const [loginEmail, setLoginEmail] = useState<string>('');
+  const [loginPassword, setLoginPassword] = useState<string>('');
+  const [authError, setAuthError] = useState<string>('');
+  const [isLoggingIn, setIsLoggingIn] = useState<boolean>(false);
+  
   // مرجع للفورم للتحكم بإعادة التعيين بصرياً
   const formRef = useRef<HTMLFormElement>(null);
+ 
 
-  // تحديث البيانات ديناميكياً عند الكتابة
+  // تحديث البيانات ديناميكياً عند الكتابة في نموذج الشحن
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
     
@@ -51,25 +62,60 @@ const ShippingForm: React.FC = () => {
     }
   };
 
-  // معالجة حدث الإرسال
+  // معالجة حدث الإرسال والتحقق من تسجيل الدخول أولاً
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     const form = event.currentTarget;
     event.preventDefault();
 
+    // 1. التحقق من صحة المدخلات أولاً
     if (form.checkValidity() === false) {
       event.stopPropagation();
       setValidated(true);
-    } else {
-      setValidated(false); 
-      setShowLoadingModal(true); // إظهار نافذة جاري المعالجة والـ Spinner أولاً
+      return;
+    }
 
-      // محاكاة معالجة البيانات والطلب لوجستياً
-      setTimeout(() => {
-        setShowLoadingModal(false); // إغلاق نافذة المعالجة والـ Spinner
-        setFormData(initialFormState); 
-        formRef.current?.reset(); 
-        setShowSuccessModal(true); // إظهار نافذة النجاح بعد اكتمال المعالجة
-      }, 4000); // 4 ثوانٍ (يمكنك تغيير المدة حسب رغبتك)
+    setValidated(false);
+
+    // 2. التحقق مما إذا كان المستخدم مسجلاً الدخول في Firebase
+    const currentUser = auth.currentUser;
+    if (!currentUser) {
+      // إذا لم يكن مسجلاً، نوقف العملية ونظهر نافذة تسجيل الدخول المنبثقة
+      setShowAuthModal(true);
+      return;
+    }
+
+    // 3. إذا كان مسجلاً، نكمل عملية إرسال الشحنة طبيعياً
+    processShippingSubmission();
+  };
+
+  // دالة إتمام الشحنة بعد التأكد من تسجيل الدخول
+  const processShippingSubmission = () => {
+    setShowLoadingModal(true); // إظهار نافذة جاري المعالجة والـ Spinner أولاً
+
+    // محاكاة معالجة البيانات والطلب لوجستياً
+    setTimeout(() => {
+      setShowLoadingModal(false); // إغلاق نافذة المعالجة والـ Spinner
+      setFormData(initialFormState); 
+      formRef.current?.reset(); 
+      setShowSuccessModal(true); // إظهار نافذة النجاح بعد اكتمال المعالجة
+    }, 4000); 
+  };
+
+  // دالة تسجيل الدخول عبر النافذة المنبثقة
+  const handleModalLogin = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setAuthError('');
+    setIsLoggingIn(true);
+
+    try {
+      await signInWithEmailAndPassword(auth, loginEmail, loginPassword);
+      // إذا تم تسجيل الدخول بنجاح:
+      setIsLoggingIn(false);
+      setShowAuthModal(false); // إغلاق نافذة تسجيل الدخول
+      processShippingSubmission(); // متابعة إرسال الشحنة تلقائياً
+    } catch (err) {
+      setIsLoggingIn(false);
+      setAuthError('البريد الإلكتروني أو كلمة المرور غير صحيحة.');
     }
   };
 
@@ -299,10 +345,71 @@ const ShippingForm: React.FC = () => {
           </Col>
         </Row>
 
+        {/* نافذة تسجيل الدخول المنبثقة (تظهر عند محاولة الإرسال بدون تسجيل دخول) */}
+        <Modal 
+          show={showAuthModal} 
+          onHide={() => setShowAuthModal(false)} 
+          centered
+          style={{ direction: 'rtl' }}
+        >
+          <div className="p-4 bg-white rounded-4 shadow-lg">
+            <div className="text-center mb-4">
+              <h4 className="fw-bold mb-1 text-dark">تسجيل الدخول مطلوب</h4>
+              <p className="text-muted small mb-0">يرجى إدخال بيانات حسابك للاستمرار وإرسال الشحنة</p>
+            </div>
+
+            <Form onSubmit={handleModalLogin}>
+              {authError && <div className="alert alert-danger p-2 small mb-3">{authError}</div>}
+              
+              <Form.Group className="mb-3 text-end" controlId="modalEmail">
+                <Form.Label className="small fw-bold text-secondary">البريد الإلكتروني</Form.Label>
+                <Form.Control 
+                  type="email" 
+                  placeholder="أدخل البريد الإلكتروني" 
+                  value={loginEmail}
+                  onChange={(e) => setLoginEmail(e.target.value)}
+                  required 
+                  className="py-2"
+                />
+              </Form.Group>
+
+              <Form.Group className="mb-4 text-end" controlId="modalPassword">
+                <Form.Label className="small fw-bold text-secondary">كلمة المرور</Form.Label>
+                <Form.Control 
+                  type="password" 
+                  placeholder="••••••••" 
+                  value={loginPassword}
+                  onChange={(e) => setLoginPassword(e.target.value)}
+                  required 
+                  className="py-2"
+                />
+              </Form.Group>
+
+              <div className="d-grid gap-2">
+                <Button 
+                  type="submit" 
+                  className="py-2.5 fw-bold text-white border-0 shadow-sm"
+                  style={{ backgroundColor: '#006650' }}
+                  disabled={isLoggingIn}
+                >
+                  {isLoggingIn ? <Spinner animation="border" size="sm" /> : 'تسجيل الدخول ومتابعة الطلب'}
+                </Button>
+                <Button 
+                  variant="outline-secondary" 
+                  onClick={() => setShowAuthModal(false)}
+                  className="py-2 border-0 text-muted"
+                >
+                  إلغاء
+                </Button>
+              </div>
+            </Form>
+          </div>
+        </Modal>
+
         {/* نافذة الانتظار والـ Spinner المنبثقة (جاري معالجة طلبك) */}
         <Modal 
           show={showLoadingModal} 
-          backdrop="static" // يمنع إغلاق النافذة عشوائياً عند الضغط خارجها
+          backdrop="static" 
           keyboard={false} 
           centered
           contentClassName="border-0 bg-transparent text-center"

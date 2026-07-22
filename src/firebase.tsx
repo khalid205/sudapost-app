@@ -1,18 +1,21 @@
+// Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
-import { getFirestore } from "firebase/firestore";
+import { getAuth } from "firebase/auth"; // 1. استيراد خدمة المصادقة
 
-// ضع هنا بيانات مشروعك الخاصة التي تعطيها لك منصة فايبربيس
+// Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_AUTH_DOMAIN",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_STORAGE_BUCKET",
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-  appId: "YOUR_APP_ID"
+  apiKey: "AIzaSyDZVIDzmUh1RKqOTEGJWhN02lqJHjCCQ4I",
+  authDomain: "sudapost-dc024.firebaseapp.com",
+  projectId: "sudapost-dc024",
+  storageBucket: "sudapost-dc024.firebasestorage.app",
+  messagingSenderId: "628052532573",
+  appId: "1:628052532573:web:9877fd5b425c102a9d1cb4",
+  measurementId: "G-HM3TWF2XN3"
 };
 
-// تشغيل الفايربيس
+// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
-// تصدير قاعدة البيانات لاستخدامها في المكونات
-export const db = getFirestore(app);
+
+// 2. تفعيل وتصدير خدمة المصادقة لكي يتم استخدامها في شاشات تسجيل الدخول
+export const auth = getAuth(app);

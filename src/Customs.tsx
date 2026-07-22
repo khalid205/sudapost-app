@@ -15,6 +15,8 @@ import {
   CheckCircleFill
 } from 'react-bootstrap-icons';
 import { Container, Modal, Button, Form, Spinner } from 'react-bootstrap';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { auth } from './firebase'; // تأكد من صحة مسار ملف الـ firebase لديك
 
 // تعريف أنواع البيانات لفئات الجمارك
 interface CustomCategory {
@@ -43,6 +45,13 @@ const CustomsServices: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [submitted, setSubmitted] = useState<boolean>(false);
   const [formData, setFormData] = useState({ name: '', phone: '', cargoType: '' });
+
+  // حالات نظام المصادقة (Firebase Auth) للتحقق عند طلب الاستشارة
+  const [showAuthModal, setShowAuthModal] = useState<boolean>(false);
+  const [loginEmail, setLoginEmail] = useState<string>('');
+  const [loginPassword, setLoginPassword] = useState<string>('');
+  const [authError, setAuthError] = useState<string>('');
+  const [isLoggingIn, setIsLoggingIn] = useState<boolean>(false);
 
   const toggleAccordion = (section: string): void => {
     setActiveAccordion(prev => (prev === section ? '' : section));
@@ -88,9 +97,25 @@ const CustomsServices: React.FC = () => {
     }, 300);
   };
 
-  // معالجة إرسال طلب الاستشارة الجمركية مع تأثير التحميل
+  // معالجة إرسال طلب الاستشارة الجمركية مع التحقق من الـ Auth
   const handleConsultationSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    // 1. التحقق مما إذا كان المستخدم مسجلاً الدخول في Firebase
+    const currentUser = auth.currentUser;
+    if (!currentUser) {
+      // إغلاق نافذة الاستشارة وفتح نافذة تسجيل الدخول المنبثقة
+      setShowModal(false);
+      setShowAuthModal(true);
+      return;
+    }
+
+    // 2. إذا كان مسجلاً، تابع إرسال الطلب مباشرة
+    processConsultationSubmission();
+  };
+
+  // دالة الإرسال الفعلية للبيانات
+  const processConsultationSubmission = () => {
     setIsLoading(true);
 
     // محاكاة إرسال البيانات للخادم لمدة ثانية ونصف
@@ -99,6 +124,24 @@ const CustomsServices: React.FC = () => {
       setIsLoading(false);
       setSubmitted(true);
     }, 1500);
+  };
+
+  // دالة تسجيل الدخول عبر النافذة المنبثقة
+  const handleModalLogin = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setAuthError('');
+    setIsLoggingIn(true);
+
+    try {
+      await signInWithEmailAndPassword(auth, loginEmail, loginPassword);
+      setIsLoggingIn(false);
+      setShowAuthModal(false); // إغلاق نافذة تسجيل الدخول
+      setShowModal(true);     // إعادة فتح نافذة الاستشارة
+      processConsultationSubmission(); // استكمال إرسال الطلب تلقائياً
+    } catch (err) {
+      setIsLoggingIn(false);
+      setAuthError('البريد الإلكتروني أو كلمة المرور غير صحيحة.');
+    }
   };
 
   return (
@@ -373,7 +416,7 @@ const CustomsServices: React.FC = () => {
         </div>
       </Container>
 
-      {/* النافذة المنبثقة المحدثة بالكامل (Premium Design) */}
+      {/* النافذة المنبثقة للاستشارة الجمركية */}
       <Modal 
         show={showModal} 
         onHide={handleCloseModal} 
@@ -385,7 +428,6 @@ const CustomsServices: React.FC = () => {
       >
         <Modal.Body className="p-0 overflow-hidden rounded-4 border-0 shadow-lg">
           
-          {/* تصميم ترويسة مودرن ملونة */}
           <div className="p-4 text-white position-relative" style={{ background: 'linear-gradient(135deg, #006650 0%, #144d32 100%)' }}>
             <button 
               type="button" 
@@ -405,7 +447,6 @@ const CustomsServices: React.FC = () => {
             </div>
           </div>
           
-          {/* المحتوى الداخلي للنافذة المنبثقة */}
           <div className="p-4 bg-white">
             {!submitted ? (
               <Form onSubmit={handleConsultationSubmit}>
@@ -495,6 +536,67 @@ const CustomsServices: React.FC = () => {
             )}
           </div>
         </Modal.Body>
+      </Modal>
+
+      {/* نافذة تسجيل الدخول المنبثقة (تظهر تلقائياً إذا حاول المستخدم إرسال استشارة وهو غير مسجل دخول) */}
+      <Modal 
+        show={showAuthModal} 
+        onHide={() => setShowAuthModal(false)} 
+        centered
+        style={{ direction: 'rtl' }}
+      >
+        <div className="p-4 bg-white rounded-4 shadow-lg text-end">
+          <div className="text-center mb-4">
+            <h4 className="fw-bold mb-1 text-dark">تسجيل الدخول مطلوب</h4>
+            <p className="text-muted small mb-0">يرجى تسجيل الدخول لحسابك لمتابعة إرسال طلب الاستشارة الجمركية</p>
+          </div>
+
+          <Form onSubmit={handleModalLogin}>
+            {authError && <div className="alert alert-danger p-2 small mb-3 text-center">{authError}</div>}
+            
+            <Form.Group className="mb-3" controlId="customModalEmail">
+              <Form.Label className="small fw-bold text-secondary">البريد الإلكتروني</Form.Label>
+              <Form.Control 
+                type="email" 
+                placeholder="أدخل بريدك الإلكتروني" 
+                value={loginEmail}
+                onChange={(e) => setLoginEmail(e.target.value)}
+                required 
+                className="py-2 text-end"
+              />
+            </Form.Group>
+
+            <Form.Group className="mb-4" controlId="customModalPassword">
+              <Form.Label className="small fw-bold text-secondary">كلمة المرور</Form.Label>
+              <Form.Control 
+                type="password" 
+                placeholder="••••••••" 
+                value={loginPassword}
+                onChange={(e) => setLoginPassword(e.target.value)}
+                required 
+                className="py-2 text-end"
+              />
+            </Form.Group>
+
+            <div className="d-grid gap-2">
+              <Button 
+                type="submit" 
+                className="py-2.5 fw-bold text-white border-0 shadow-sm"
+                style={{ backgroundColor: '#006650' }}
+                disabled={isLoggingIn}
+              >
+                {isLoggingIn ? <Spinner animation="border" size="sm" /> : 'تسجيل الدخول ومتابعة الطلب'}
+              </Button>
+              <Button 
+                variant="outline-secondary" 
+                onClick={() => setShowAuthModal(false)}
+                className="py-2 border-0 text-muted"
+              >
+                إلغاء
+              </Button>
+            </div>
+          </Form>
+        </div>
       </Modal>
 
       {/* حركات وتأثيرات الـ CSS الإضافية */}
