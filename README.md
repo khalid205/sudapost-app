@@ -30,3 +30,6 @@
   /assets         # الصور والملفات الثابتة
   /hooks          # الدوال المخصصة (Custom Hooks)
   /services       # إعدادات Firebase والاتصال بالـ API
+
+رابط الموقع
+khalid205.github.io/sudapost-app/
